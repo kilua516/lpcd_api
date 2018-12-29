@@ -1,0 +1,110 @@
+[Stack]
+FillEnabled=0
+OverflowWarningsEnabled=1
+WarningThreshold=90
+SpWarningsEnabled=1
+WarnLogOnly=1
+UseTrigger=1
+TriggerName=main
+LimitSize=0
+ByteLimit=50
+[DebugChecksum]
+Checksum=1866256394
+[CallStack]
+ShowArgs=0
+[Disassembly]
+MixedMode=1
+[InterruptLog]
+LogEnabled=0
+SumEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+SumSortOrder=0
+[Breakpoints2]
+Bp0=_ 0 "STD_CODE2" "{$PROJ_DIR$\..\source\stm32f0xx_usart.h}.48.1" 0 0 1 "" 0 ""
+Bp1=_ 0 "STD_CODE2" "{$PROJ_DIR$\..\source\stm32f0xx_usart.c}.73.1" 0 0 1 "" 0 ""
+Bp2=_ 0 "STD_CODE2" "{$PROJ_DIR$\..\source\usart.c}.226.8" 0 0 1 "" 0 ""
+Bp3=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\source\main.c}.204.3" 0 0 1 "" 0 ""
+Count=4
+[Interrupts]
+Enabled=1
+[MemoryMap]
+Enabled=0
+Base=0
+UseAuto=0
+TypeViolation=1
+UnspecRange=1
+ActionState=1
+[Trace1]
+Enabled=0
+ShowSource=1
+[State Storage]
+Control Register=0
+[Sequencer]
+Control Register=0
+NextState0=0
+NextState1=0
+[Action Register]
+Break=2
+State Storage=2
+[Log file]
+LoggingEnabled=_ 0
+LogFile=_ ""
+Category=_ 0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
+[CallStackLog]
+Enabled=0
+[DriverProfiling]
+Enabled=0
+Mode=0
+Graph=0
+Symbiont=0
+[Breakpoints]
+Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\source\sys_msp430}.801.5" 0 0 0 0 "" 0 ""
+Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\source\sys_msp430}.251.17" 0 0 0 0 "" 0 ""
+Bp2=_ "STD_CODE" "{$PROJ_DIR$\..\source\iso14443\Mh523.c}.1055.5" 0 0 0 0 "" 0 ""
+Bp3=_ "STD_CODE" "{$PROJ_DIR$}.75.5" 0 0 0 0 "" 0 ""
+Bp4=_ "STD_CODE" "{$PROJ_DIR$}.72.5" 0 0 0 0 "" 0 ""
+Bp5=_ "STD_CODE" "{$PROJ_DIR$\..\source\sys_msp430\main.c}.233.29" 0 0 0 0 "" 0 ""
+Bp6=_ "STD_CODE" "{$PROJ_DIR$\..\source\sys_msp430\main.c}.233.29" 0 0 0 0 "" 0 ""
+Bp7=_ "STD_CODE" "{$PROJ_DIR$}.49.9" 0 0 0 0 "" 0 ""
+Bp8=_ "STD_CODE" "{$PROJ_DIR$\..\source\sys_msp430\main.c}.233.29" 0 0 0 0 "" 0 ""
+Bp9=_ "STD_CODE" "{$PROJ_DIR$\..\source\sys_msp430\main.c}.235.25" 0 0 0 0 "" 0 ""
+Count=10
+[FET]
+Clock mode=14
+Extended Clock mode=-1
+Secure Password=
+Extended Clock Control Enable=1
+Advanced Extended Clock Control=0
+Emulation mode=0
+Free running=0
+Shutting Down=1
+[Memory Dump]
+Start address=
+Lenghth=
+Address info=0
+Format=0
+Dump registers=0
+PC=0
+SP=0
+SR=0
+all registers=0
+File name=
+[Aliases]
+A0=_ "D:\rpliu\crius_v2\lpcd_auto_calib\trunk\source\sys_msp430\lpcd.c" ""
+A1=_ "D:\rpliu\crius_v2\lpcd_typea_card_read\trunk\source\iso14443\iso14443_4.c" ""
+A2=_ "D:\rpliu\crius_v2\lpcd_typea_card_read\trunk\source\iso14443\sl2523.c" ""
+A3=_ "D:\xlwang\sl1523_new_source_debug\source\common\usmart_str.c" ""
+A4=_ "D:\xlwang\sl1523_new_source_debug\source\iso14443\Rfid_interface.c" ""
+A5=_ "E:\pro\svn\crius\hostdevelop\trunk\source\source\drv_usart.c" ""
+A6=_ "E:\pro\svn\crius\hostdevelop\trunk\source\source\usart.c" ""
+A7=_ "E:\pro\svn\crius\hostdevelop\trunk\source\source\usmart.c" ""
+A8=_ "E:\pro\svn\crius\hostdevelop\trunk\source\source\usmart_str.c" ""
+A9=_ "E:\pro\svn\crius\mergin-xl\source\source\common\drv_usart.c" ""
+A10=_ "F:\3.crius_v2\06source\sl2523_msp430\source\iso14443\Rfid_interface.c" ""
+Count=11
+SuppressDialog=1
