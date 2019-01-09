@@ -1,3 +1,21 @@
+/*
+*************************************************************
+ *@Copyright (C), 2016-2020 smartlinkMicro. Co., Ltd.  All rights reserved.
+ *@Filename:
+ *@Complier:    IAR msp430 5.30
+ *@Target OS:   NONE
+ *@Target HW:   SL1523
+ *@Author:      rpliu
+ *@Version :    V1.0.0
+ *@Date:        2018.12.25
+ *@Description: LPCD api code header file
+ *@History:
+ *@    <author>     <time>     <version >   <desc>
+ *@    rpliu        20181225   V1.0.0       Initial Version
+
+*************************************************************
+*/
+
 #ifndef LPCD_H
 #define LPCD_H
 
@@ -19,6 +37,8 @@ void do_lpcd_calib(int upper_bound, int lower_bound, uchar *calib_rlt, uchar *id
 void osc_calib();
 
 void lpcd_calib(unsigned char *idx);
+
+unsigned char phase_calib();
 
 void lpcd_calib_callback(unsigned char proc);
 

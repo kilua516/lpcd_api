@@ -4,13 +4,14 @@
  *@Filename:
  *@Complier:    IAR msp430 5.30
  *@Target OS:   NONE
- *@Target HW:  SL1523
- *@Author:        htyi
- *@Version :     V1.0.0
- *@Date:          2017.8
- *@Description:
+ *@Target HW:   SL1523
+ *@Author:      rpliu
+ *@Version :    V1.0.0
+ *@Date:        2018.12.25
+ *@Description: LPCD demo code
  *@History:
  *@    <author>     <time>     <version >   <desc>
+ *@    rpliu        20181225   V1.0.0       Initial Version
 
 *************************************************************
 */
