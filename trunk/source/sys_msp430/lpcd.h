@@ -38,9 +38,9 @@ void osc_calib();
 
 void lpcd_calib(unsigned char *idx);
 
-unsigned char phase_calib();
-
 void lpcd_calib_callback(unsigned char proc);
+
+unsigned char phase_calib();
 
 void lpcd_init(unsigned char t1             ,
                unsigned char *idx           ,

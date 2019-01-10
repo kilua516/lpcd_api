@@ -193,132 +193,6 @@ void lpcd_find_edge(int lower_bound, int upper_bound, int *edge)
 #endif
 }
 
-unsigned char phase_calib()
-{
-    unsigned char reg_14;
-    unsigned char reg_15;
-    unsigned char reg_29;
-    unsigned char reg_65;
-    unsigned char reg_66;
-    unsigned char recv_data;
-    unsigned char idx[8];
-    int max_amp;
-    int idx_max;
-    unsigned char max_ph;
-    unsigned char rise_found;
-    unsigned char peak_found;
-    unsigned char ph;
-    unsigned char calib_rlt;
-    unsigned char amp[3];
-    int i;
-
-    reg_14 = read_reg(0x14);
-    reg_15 = read_reg(0x15);
-    reg_29 = read_reg(0x29);
-    write_reg(TxASKReg, 0x00);  // Force100ASK = 0
-    write_reg(TxControlReg, 0x80);
-    write_reg(ModGsPReg, read_reg(CWGsPReg));
-
-    write_reg(0x3f,0x01);
-
-    write_reg(0x54,0x81);       // lpcd calib mode
-
-    write_reg(0x51,0x00);  // T1
-    write_reg(0x52,0x1f);  // T2 = 0x1f
-    write_reg(0x53,0xa3);  // T3 = 0x5 & Twait = 0x3
-
-    reg_65 = read_reg(0x65);
-    reg_66 = read_reg(0x66);
-
-    for (i = 0; i < 8; i++)
-    {
-        idx[i] = (unsigned char)(INDEX_NUM * i / 7);
-    }
-
-    write_reg(0x65, 0x00);        // disable auto phase
-
-    while(1)
-    {
-        // set threshold
-        for (i = 0; i < 8; i++)
-        {
-            write_reg(0x5b+i,lut[idx[i]]);
-        }
-
-        max_amp = 0;
-        rise_found = 0;
-        peak_found = 0;
-
-        for (ph = 0; ph < 64; ph++)
-        {
-            write_reg(0x3f,0x01);
-            write_reg(0x66,ph);       // set phase
-
-            write_reg(0x3f,0x00);
-            write_reg(0x01,0x10);     // enter lpcd calib mode
-
-            // wait lpcd calib done
-            do
-            {
-                recv_data = read_reg(0x05); 
-            }
-            while ((recv_data & 0x20) != 0x20);
-
-            write_reg(0x01,0x00);
-            delay_1ms(1);
-            write_reg(0x3f,0x01);
-
-            for (i = 0; i < 8; i++)
-            {
-                calib_rlt = read_reg(0x5b+i)&0x80;
-                if (calib_rlt != 0)
-                {
-                    break;
-                }
-            }
-
-            i = (i == 8) ? 7 : i;     // clip i
-            amp[2] = amp[1];
-            amp[1] = amp[0];
-            amp[0] = (unsigned char)(INDEX_NUM * i / 7);
-
-            if ((amp[0] > amp[1]) && (amp[0] > amp[2]))
-            {
-                rise_found = 1;
-            }
-            if ((amp[0] < amp[1]) && (amp[0] < amp[2]) && (rise_found == 1))
-            {
-                peak_found = 1;
-            }
-
-            max_amp = (max_amp > amp[0]) ? max_amp : amp[0];
-            max_ph  = (max_amp > amp[0]) ? max_ph  : ph;
-        }
-
-        if ((idx[7]-idx[0]) <= 7)
-        {
-            break;
-        }
-
-        idx_max = (max_amp > (INDEX_NUM+3)) ? (INDEX_NUM+3) : (idx_max+3);
-        for (i = 0; i < 8; i++)
-        {
-            idx[i] = ((idx_max-7+i) >= 0) ? (idx_max-7+i) : 0;
-        }
-    }
-
-    write_reg(0x3f,0x01);
-    write_reg(0x65,reg_65);
-    write_reg(0x66,reg_66);
-
-    write_reg(0x3f,0x00);
-    write_reg(TxASKReg, reg_15);
-    write_reg(TxControlReg, reg_14 | 0x03);
-    write_reg(ModGsPReg, reg_29);
-
-    return max_ph;
-}
-
 void do_lpcd_calib(int upper_bound, int lower_bound, unsigned char *calib_rlt, unsigned char *idx)
 {
     int i = 0;
@@ -486,6 +360,114 @@ void lpcd_calib_callback(unsigned char proc)
     }
 }
 
+unsigned char phase_calib()
+{
+    unsigned char reg_14;
+    unsigned char reg_15;
+    unsigned char reg_29;
+    unsigned char reg_65;
+    unsigned char reg_66;
+    unsigned char recv_data;
+    unsigned char idx[8];
+    unsigned char ph;
+    unsigned char ph_mask;
+    unsigned char calib_rlt;
+    unsigned char amp[2];
+    unsigned char i;
+
+    write_reg(0x3f,0x00);
+
+    reg_14 = read_reg(0x14);
+    reg_15 = read_reg(0x15);
+    reg_29 = read_reg(0x29);
+    write_reg(TxASKReg, 0x00);  // Force100ASK = 0
+    write_reg(TxControlReg, 0x80);
+    write_reg(ModGsPReg, read_reg(CWGsPReg));
+
+    write_reg(0x3f,0x01);
+
+    write_reg(0x54,0x81);       // lpcd calib mode
+
+    write_reg(0x51,0x00);   // T1
+    write_reg(0x52,0x1f);   // T2 = 0x1f
+    write_reg(0x53,0xa3);   // T3 = 0x5 & Twait = 0x3
+
+    reg_65 = read_reg(0x65);
+    reg_66 = read_reg(0x66);
+
+//    printf("auto delay phase: %x\n", reg_66);
+
+    write_reg(0x65,0x00);   // disable auto phase
+
+    for (i = 0; i < 8; i++)
+    {
+        idx[i] = (unsigned char)(INDEX_NUM * i / 7);
+    }
+
+    // set threshold
+    for (i = 0; i < 8; i++)
+    {
+        write_reg(0x5b+i, lut[idx[i]]);
+    }
+
+    for (ph = 0; ph < 2; ph++)
+    {
+        write_reg(0x3f,0x01);
+
+        ph_mask = (ph == 0) ? 0x80 : 0xc0;
+        write_reg(0x66,reg_66 ^ ph_mask);   // set phase
+
+        write_reg(0x3f,0x00);
+        write_reg(0x05,0x20);
+        write_reg(0x01,0x10);         // enter lpcd calib mode
+
+        // wait lpcd calib done
+        do
+        {
+            recv_data = read_reg(0x05);
+        }
+        while ((recv_data & 0x20) != 0x20);
+
+        write_reg(0x01,0x00);
+        delay_1ms(1);
+
+        write_reg(0x3f,0x01);
+
+//        for (i = 0; i < 8; i++)
+//        {
+//            calib_rlt = read_reg(0x5b+i) & 0x80;
+//            printf("reg:%x, calib_rlt[%d]: %d\n", read_reg(0x5b+i), i, calib_rlt >> 7);
+//        }
+
+        for (i = 0; i < 8; i++)
+        {
+            calib_rlt = read_reg(0x5b+i) & 0x80;
+            if (calib_rlt != 0)
+            {
+                break;
+            }
+        }
+
+        amp[ph] = i;
+    }
+
+    write_reg(0x3f,0x01);
+    write_reg(0x65,reg_65);
+    write_reg(0x66,reg_66);
+
+    write_reg(0x3f,0x00);
+    write_reg(TxASKReg, reg_15);
+    write_reg(TxControlReg, reg_14 | 0x03);
+    write_reg(ModGsPReg, reg_29);
+
+    if (amp[0] < amp[1])
+        return (reg_66 ^ 0xc0);
+    else if (amp[1] > amp[0])
+        return (reg_66 ^ 0x80);
+    else
+        return 0xff;
+}
+
 void lpcd_init(unsigned char t1             ,
                unsigned char *idx           ,
                unsigned char sense          ,
@@ -497,9 +479,11 @@ void lpcd_init(unsigned char t1             ,
     int i;
 #endif
     lpcd_phase = phase_calib();
+    lpcd_phase += 5;
+//    printf("lpcd_phase: %x\n", lpcd_phase);
 
     write_reg(0x3f,0x01);
-    
+
     if (dc_shift_det_en == 0)
         write_reg(0x54,0x82);
     else
@@ -570,8 +554,8 @@ unsigned char slm_reg_14, slm_reg_15, slm_reg_29, slm_reg_65, slm_reg_66;
 // set 0x14/0x15/0x29/0x65/0x66 and turn off rf field
 void lpcd_entry()
 {
-    write_reg(0x28, 0x10);
-    write_reg(0x29, 0x20);
+//  write_reg(0x28, 0x10);
+//  write_reg(0x29, 0x20);
     slm_reg_14 = read_reg(0x14);
     slm_reg_15 = read_reg(0x15);
     slm_reg_29 = read_reg(0x29);

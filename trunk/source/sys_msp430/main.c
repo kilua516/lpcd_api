@@ -127,8 +127,9 @@ void main( void )
     upshift_det_cnt = 0;
     downshift_det_cnt = 0;
     
-//    pcd_antenna_on();
-//    while(1);
+    pcd_antenna_on();
+    while(1)
+        test_a();
     
     write_reg(0x3f,0x01);
     write_reg(0x68,0x03);

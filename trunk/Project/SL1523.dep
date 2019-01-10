@@ -6,40 +6,40 @@
   <configuration>
     <name>Debug</name>
     <outputs>
-      <file>$PROJ_DIR$\..\source\common\usmart.c</file>
-      <file>$PROJ_DIR$\..\source\common\usmart_config.c</file>
-      <file>$PROJ_DIR$\Debug\Obj\iso14443_4.pbi</file>
-      <file>$TOOLKIT_DIR$\inc\dlib\c\DLib_Threads.h</file>
-      <file>$TOOLKIT_DIR$\inc\dlib\c\DLib_Product.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\Rfid_interface.r43</file>
-      <file>$PROJ_DIR$\..\source\common\drv_usart.h</file>
-      <file>$TOOLKIT_DIR$\inc\dlib\c\stdio.h</file>
-      <file>$PROJ_DIR$\..\source\iso14443\iso14443a.c</file>
-      <file>$PROJ_DIR$\..\source\sys_msp430\lpcd.c</file>
-      <file>$TOOLKIT_DIR$\lib\dlib\dl430ff.r43</file>
       <file>$PROJ_DIR$\..\source\common\drv_usart.c</file>
+      <file>$PROJ_DIR$\..\source\common\usart.c</file>
+      <file>$PROJ_DIR$\..\source\common\usmart_str.c</file>
+      <file>$PROJ_DIR$\..\source\common\usmart_config.c</file>
+      <file>$PROJ_DIR$\..\source\common\usmart.c</file>
+      <file>$PROJ_DIR$\..\source\iso14443\iso14443_4.c</file>
+      <file>$PROJ_DIR$\..\source\iso14443\iso14443a.c</file>
+      <file>$PROJ_DIR$\..\source\iso14443\iso14443b.c</file>
+      <file>$PROJ_DIR$\..\source\iso14443\mifare.c</file>
       <file>$PROJ_DIR$\..\source\iso14443\Rfid_interface.c</file>
-      <file>$PROJ_DIR$\..\source\common\usmart_str.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\main.r43</file>
-      <file>$TOOLKIT_DIR$\config\lnk430F247.xcl</file>
       <file>$PROJ_DIR$\..\source\iso14443\sl2523.c</file>
       <file>$PROJ_DIR$\..\source\sys_msp430\console_api.c</file>
+      <file>$PROJ_DIR$\..\source\sys_msp430\lpcd.c</file>
+      <file>$PROJ_DIR$\..\source\sys_msp430\main.c</file>
+      <file>$PROJ_DIR$\..\source\sys_msp430\mcu.c</file>
+      <file>$PROJ_DIR$\Debug\Obj\main.r43</file>
+      <file>$PROJ_DIR$\..\source\common\drv_usart.h</file>
+      <file>$TOOLKIT_DIR$\inc\dlib\c\stdio.h</file>
+      <file>$PROJ_DIR$\..\source\common\usmart_str.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\iso14443_4.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\Rfid_interface.r43</file>
+      <file>$TOOLKIT_DIR$\lib\dlib\dl430ff.r43</file>
+      <file>$TOOLKIT_DIR$\config\lnk430F247.xcl</file>
+      <file>$TOOLKIT_DIR$\inc\dlib\c\DLib_Product.h</file>
+      <file>$TOOLKIT_DIR$\inc\dlib\c\DLib_Threads.h</file>
       <file>$PROJ_DIR$\..\source\sys_msp430\msp430x24x.h</file>
       <file>$PROJ_DIR$\Debug\Obj\sl2523.r43</file>
-      <file>$PROJ_DIR$\..\source\sys_msp430\main.c</file>
       <file>$TOOLKIT_DIR$\inc\dlib\c\stdlib.h</file>
       <file>$PROJ_DIR$\..\source\sys_msp430\mcu.h</file>
-      <file>$PROJ_DIR$\..\source\sys_msp430\mcu.c</file>
       <file>$TOOLKIT_DIR$\inc\msp430x24x.h</file>
-      <file>$PROJ_DIR$\..\source\common\usart.c</file>
       <file>$TOOLKIT_DIR$\inc\intrinsics.h</file>
-      <file>$PROJ_DIR$\..\source\common\usmart_str.c</file>
       <file>$PROJ_DIR$\Debug\Obj\lpcd.pbi</file>
-      <file>$PROJ_DIR$\..\source\iso14443\mifare.c</file>
-      <file>$PROJ_DIR$\..\source\iso14443\iso14443b.c</file>
       <file>$TOOLKIT_DIR$\inc\dlib\c\ycheck.h</file>
       <file>$PROJ_DIR$\..\source\sys_msp430\lpcd.h</file>
-      <file>$PROJ_DIR$\..\source\iso14443\iso14443_4.c</file>
       <file>$PROJ_DIR$\Debug\Obj\mifare.r43</file>
       <file>$PROJ_DIR$\Debug\Obj\mcu.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\iso14443a.r43</file>
@@ -90,98 +90,6 @@
       <file>$PROJ_DIR$\Debug\Obj\SL1523.pbd</file>
     </outputs>
     <file>
-      <name>$PROJ_DIR$\..\source\common\usmart.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 54</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 61</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 45 13 40 50 7 31 66 65 4 63 3 74 58</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 45 13 40 50 7 31 66 65 49 4 63 3 74 58</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\source\common\usmart_config.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 55</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 56</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 45 13 40 71 73 76 48 52 53 59</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 45 13 40 71 73 76 48 52 53 59</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\source\iso14443\iso14443a.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 67</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 36</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 21 31 66 65 4 63 3 74 7 58 80 24 57 26 71 73 40 48 53</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 21 31 66 65 49 4 63 3 74 7 58 80 24 57 26 71 73 40 48 53</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\source\sys_msp430\lpcd.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 28</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 43</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 7 31 66 65 4 63 3 74 58 40 32 71 73</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 7 31 66 65 49 4 63 3 74 58 40 32 71 73</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
       <name>$PROJ_DIR$\..\source\common\drv_usart.c</name>
       <outputs>
         <tool>
@@ -196,126 +104,11 @@
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 6 40 24 57 26</file>
+          <file> 16 40 29 57 30</file>
         </tool>
         <tool>
           <name>ICC430</name>
-          <file> 6 40 24 57 26</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\source\iso14443\Rfid_interface.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 70</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 5</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 21 31 66 65 4 63 3 74 80 7 58 76 71 73 48 40 52 53 59 72 24 57 26</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 21 31 66 65 49 4 63 3 74 80 7 58 76 71 73 48 40 52 53 59 72 24 57 26</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\source\iso14443\sl2523.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 68</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 19</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 21 31 66 65 4 63 3 74 7 58 80 40 71 73 53 24 57 26</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 21 31 66 65 49 4 63 3 74 7 58 80 40 71 73 53 24 57 26</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\source\sys_msp430\console_api.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 39</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 77</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 21 31 66 65 4 63 3 74 80 7 58 18 57 26 40 48 71 73 53 76 52 59 45 13</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 21 31 66 65 49 4 63 3 74 80 7 58 18 57 26 40 48 71 73 53 76 52 59 45 13</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\source\sys_msp430\main.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 60</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 14</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 21 31 66 65 4 63 3 74 80 7 58 18 57 26 40 32 22 71 73 45 13 50</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 21 31 66 65 49 4 63 3 74 80 7 58 18 57 26 40 32 22 71 73 45 13 50</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\source\sys_msp430\mcu.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 35</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 46</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 18 57 26 40 22 41</file>
-        </tool>
-        <tool>
-          <name>ICC430</name>
-          <file> 18 57 26 40 22 41</file>
+          <file> 16 40 29 57 30</file>
         </tool>
       </inputs>
     </file>
@@ -334,11 +127,11 @@
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 24 57 26 50 7 31 66 65 4 63 3 74 58 40 6</file>
+          <file> 29 57 30 50 17 32 66 65 23 63 24 74 58 40 16</file>
         </tool>
         <tool>
           <name>ICC430</name>
-          <file> 24 57 26 50 7 31 66 65 49 4 63 3 74 58 40 6</file>
+          <file> 29 57 30 50 17 32 66 65 49 23 63 24 74 58 40 16</file>
         </tool>
       </inputs>
     </file>
@@ -357,34 +150,103 @@
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 13 40 45</file>
+          <file> 18 40 45</file>
         </tool>
         <tool>
           <name>ICC430</name>
-          <file> 13 40 45</file>
+          <file> 18 40 45</file>
         </tool>
       </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\source\iso14443\mifare.c</name>
+      <name>$PROJ_DIR$\..\source\common\usmart_config.c</name>
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 51</file>
+          <file> 55</file>
         </tool>
         <tool>
           <name>ICC430</name>
-          <file> 34</file>
+          <file> 56</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 21 31 66 65 4 63 3 74 7 58 80 59 71 73</file>
+          <file> 45 18 40 71 73 76 48 52 53 59</file>
         </tool>
         <tool>
           <name>ICC430</name>
-          <file> 21 31 66 65 49 4 63 3 74 7 58 80 59 71 73</file>
+          <file> 45 18 40 71 73 76 48 52 53 59</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\source\common\usmart.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 54</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 61</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 45 18 40 50 17 32 66 65 23 63 24 74 58</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 45 18 40 50 17 32 66 65 49 23 63 24 74 58</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\source\iso14443\iso14443_4.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 19</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 37</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 27 32 66 65 23 63 24 74 80 17 58 53 73 71</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 27 32 66 65 49 23 63 24 74 80 17 58 53 73 71</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\source\iso14443\iso14443a.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 67</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 36</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 27 32 66 65 23 63 24 74 17 58 80 29 57 30 71 73 40 48 53</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 27 32 66 65 49 23 63 24 74 17 58 80 29 57 30 71 73 40 48 53</file>
         </tool>
       </inputs>
     </file>
@@ -403,34 +265,172 @@
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 21 31 66 65 4 63 3 74 7 58 80 71 73 52 40</file>
+          <file> 27 32 66 65 23 63 24 74 17 58 80 71 73 52 40</file>
         </tool>
         <tool>
           <name>ICC430</name>
-          <file> 21 31 66 65 49 4 63 3 74 7 58 80 71 73 52 40</file>
+          <file> 27 32 66 65 49 23 63 24 74 17 58 80 71 73 52 40</file>
         </tool>
       </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\source\iso14443\iso14443_4.c</name>
+      <name>$PROJ_DIR$\..\source\iso14443\mifare.c</name>
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 2</file>
+          <file> 51</file>
         </tool>
         <tool>
           <name>ICC430</name>
-          <file> 37</file>
+          <file> 34</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 21 31 66 65 4 63 3 74 80 7 58 53 73 71</file>
+          <file> 27 32 66 65 23 63 24 74 17 58 80 59 71 73</file>
         </tool>
         <tool>
           <name>ICC430</name>
-          <file> 21 31 66 65 49 4 63 3 74 80 7 58 53 73 71</file>
+          <file> 27 32 66 65 49 23 63 24 74 17 58 80 59 71 73</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\source\iso14443\Rfid_interface.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 70</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 20</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 27 32 66 65 23 63 24 74 80 17 58 76 71 73 48 40 52 53 59 72 29 57 30</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 27 32 66 65 49 23 63 24 74 80 17 58 76 71 73 48 40 52 53 59 72 29 57 30</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\source\iso14443\sl2523.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 68</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 26</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 27 32 66 65 23 63 24 74 17 58 80 40 71 73 53 29 57 30</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 27 32 66 65 49 23 63 24 74 17 58 80 40 71 73 53 29 57 30</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\source\sys_msp430\console_api.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 39</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 77</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 27 32 66 65 23 63 24 74 80 17 58 25 57 30 40 48 71 73 53 76 52 59 45 18</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 27 32 66 65 49 23 63 24 74 80 17 58 25 57 30 40 48 71 73 53 76 52 59 45 18</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\source\sys_msp430\lpcd.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 31</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 43</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 17 32 66 65 23 63 24 74 58 40 33 71 73</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 17 32 66 65 49 23 63 24 74 58 40 33 71 73</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\source\sys_msp430\main.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 60</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 15</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 27 32 66 65 23 63 24 74 80 17 58 25 57 30 40 33 28 71 73 45 18 50</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 27 32 66 65 49 23 63 24 74 80 17 58 25 57 30 40 33 28 71 73 45 18 50</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\source\sys_msp430\mcu.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 35</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 46</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 25 57 30 40 28 41</file>
+        </tool>
+        <tool>
+          <name>ICC430</name>
+          <file> 25 57 30 40 28 41</file>
         </tool>
       </inputs>
     </file>
@@ -445,16 +445,7 @@
       <inputs>
         <tool>
           <name>XLINK</name>
-          <file> 15 5 77 79 37 36 42 43 14 46 34 19 69 61 56 62 10</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Debug\Obj\SL1523.pbd</name>
-      <inputs>
-        <tool>
-          <name>BILINK</name>
-          <file> 70 39 64 2 67 75 28 60 35 51 68 47 54 55 78</file>
+          <file> 22 20 77 79 37 36 42 43 15 46 34 26 69 61 56 62 21</file>
         </tool>
       </inputs>
     </file>
@@ -466,6 +457,15 @@
           <file> 38 44</file>
         </tool>
       </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\Debug\Obj\SL1523.pbd</name>
+      <inputs>
+        <tool>
+          <name>BILINK</name>
+          <file> 70 39 64 19 67 75 31 60 35 51 68 47 54 55 78</file>
+        </tool>
+      </inputs>
     </file>
   </configuration>
   <configuration>
