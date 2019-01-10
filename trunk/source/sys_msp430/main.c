@@ -70,6 +70,7 @@ void main( void )
     int i = 0;
     int j = 0;
     int k = 0;
+    unsigned long wait_cnt;
     unsigned char idx[8];
     unsigned char calib_rlt[8];
 
@@ -141,38 +142,53 @@ void main( void )
         lpcd_entry();
         printf("ENTER LPCD PROC!\n");
         
+        wait_cnt = 0;
         i = 0;
         k = 0;
         while (1) {
+#ifdef NOT_IRQ
+            while(INT_PIN == 0)
+#else
+            while (irq_flag_io == 0)
+#endif
+            {
+                wait_cnt++;
+                if (wait_cnt == 500000) {
+                    wait_cnt = 0;
+                    printf(".");
+                }
+            }
+#ifndef NOT_IRQ
+            irq_flag_io = 0;
+#endif
             recv_data = read_reg(0x05);
+            lpcd_exit();
+            printf("\nEXIT LPCD PROC!\n");
+
             if ((recv_data & 0x20) == 0x20) {
-                lpcd_exit();
-                printf("\nEXIT LPCD PROC!\n");
-                
                 write_reg(0x05,0x20);
-                while (irq_flag_io == 0);  //yht
-                irq_flag_io = 0;
-
-                write_reg(0x3f, 0x01);
-                recv_data = read_reg(0x59);
-                write_reg(0x3f, 0x00);
-
-                if ((recv_data & 0x04) == 0x04)
-                {
-                    card_detect = 1;
-                }
-                else if ((recv_data & 0x02) == 0x02)
-                {
-                    dc_shift = 1;
-                }
-
                 break;
             }
-            i++;
-            if (i == 10000) {
-//                printf("Waiting LPCD Trigger!\n");
-                printf(".");
+            else
+            {
+                write_reg(0x04,0x7e);
+                write_reg(0x05,0x7e);
+                lpcd_entry();
+                printf("ENTER LPCD PROC!\n");
             }
+        }
+
+        write_reg(0x3f, 0x01);
+        recv_data = read_reg(0x59);
+        write_reg(0x3f, 0x00);
+
+        if ((recv_data & 0x04) == 0x04)
+        {
+            card_detect = 1;
+        }
+        else if ((recv_data & 0x02) == 0x02)
+        {
+            dc_shift = 1;
         }
         
 #ifdef LPCD_DEBUG

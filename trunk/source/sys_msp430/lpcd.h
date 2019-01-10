@@ -20,6 +20,7 @@
 #define LPCD_H
 
 #include "sys_def.h"
+#include "msp430x24x.h"
 
 #define INDEX_NUM   45
 #define THD_ADJ_CNT 5
@@ -50,6 +51,14 @@ void lpcd_init(unsigned char t1             ,
 void lpcd_entry();
 
 void lpcd_exit();
+
+#define ASSERT_SPI_CLK_LOW    \
+    P5DIR |= BIT3;            \
+    P5SEL &= ~BIT3;           \
+    P5OUT &= ~BIT3;
+
+#define RELEASE_SPI_CLK_LOW   \
+    P5SEL = 0xE;
 
 #endif
 // endfile

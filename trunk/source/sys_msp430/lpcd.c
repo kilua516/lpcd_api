@@ -571,11 +571,18 @@ void lpcd_entry()
     set_bit_mask(DivIEnReg, BIT7 | BIT5);// enable LPCD IRQ
 
     write_reg(0x01,0x10);
+    
+#ifndef NOT_IRQ
+    ASSERT_SPI_CLK_LOW;
+#endif
 }
 
 // restore 0x14/0x15/0x28/0x29/0x65/0x66
 void lpcd_exit()
 {
+#ifndef NOT_IRQ
+    RELEASE_SPI_CLK_LOW;
+#endif
     write_reg(0x01,0x00);
     delay_1ms(10);
     

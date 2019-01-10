@@ -990,7 +990,9 @@ void pcd_init()
     
     write_reg(0x68,0x3);
     write_reg(0x3f,0);
-
+    
+    write_reg(0x33,0x7e);
+    write_reg(0x34,0x80);
 }
 
 
