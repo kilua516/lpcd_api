@@ -978,11 +978,11 @@ void pcd_init()
     write_reg(RxSelReg, 0x88);//RxWait
     //write_reg(CWGsPReg, 0x3f);  //
     write_reg(CWGsPReg, 0x17);  //
-    write_reg(RFCfgReg, 0x38); //
+    write_reg(RFCfgReg, 0x58); //
     write_reg(ControlReg, 0x10);  //default val
 
     write_reg(0x3f, 0x01); //
-    //write_reg(0x45, 0x54); //
+    write_reg(0x45, 0x25); //
     
    // write_reg(0x46, 0x0c);          //ÂË²¨¼Ä´æÆ÷1
    // write_reg(0x49, 0xff);          //ÂË²¨¼Ä´æÆ÷2

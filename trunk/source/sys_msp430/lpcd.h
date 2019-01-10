@@ -12,6 +12,7 @@
  *@History:
  *@    <author>     <time>     <version >   <desc>
  *@    rpliu        20181225   V1.0.0       Initial Version
+ *@    rpliu        20190110   V1.0.1       add phase auto calibration
 
 *************************************************************
 */
