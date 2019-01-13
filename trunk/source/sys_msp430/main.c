@@ -27,6 +27,7 @@
 #include "../iso14443/sl2523.h"
 #include "../common/usmart.h"
 #include "../common/Usart.h"
+#include "../iso14443/Rfid_interface.h"
 
 
 extern volatile u8 irq_flag_io;
@@ -128,13 +129,16 @@ void main( void )
     upshift_det_cnt = 0;
     downshift_det_cnt = 0;
     
-//    pcd_antenna_on();
-//    while(1)
-//        test_a();
-    
     write_reg(0x3f,0x01);
     write_reg(0x68,0x03);
     write_reg(0x3f,0x00);
+    
+//    pcd_antenna_on();
+//    while(1)
+//    {
+//        test_a(1);
+//        test_b(1);
+//    }
     
     while (1) {
         card_detect = 0;
@@ -207,6 +211,7 @@ void main( void )
 
         if (card_detect == 1) {
             card_detect = test_a(1);
+            card_detect |= test_b(1);
             if (card_detect != 1)
             {
                 printf("******* CARD READ FAIL! *******\n");
@@ -235,6 +240,7 @@ void main( void )
         }
         else if (dc_shift == 1) {
             card_detect = test_a(1);
+            card_detect |= test_b(1);
             if (card_detect != 1)
             {
                 printf("******* CARD READ FAIL! *******\n");

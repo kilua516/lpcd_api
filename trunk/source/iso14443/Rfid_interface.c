@@ -604,8 +604,9 @@ char test_auth(void)
 
 
 unsigned char block_1[22] = {0x02, 0x00, 0xA4, 0x04, 0x00, 0x0E, 0x32, 0x50, 0x41, 0x59, 0x2E, 0x53, 0x59, 0x53, 0x2E, 0x44, 0x44, 0x46, 0x30, 0x31, 0x00};
-void test_b(uchar rate)
+int test_b(uchar rate)
 {
+    u8 card_det = 0;
     u16 i,j,testcnd;
     uchar ret,I_block,val;
     u16 uiRecLen;
@@ -626,89 +627,82 @@ void test_b(uchar rate)
     pcd_config('B');
     pcd_antenna_on();
     delay_1ms(3);
-    while(1)
+    if(reqb_wakeup(rate) == MI_OK)
     {
+        card_det = 1;
 
-        delay_1ms(1000);
-        if(reqb_wakeup(rate) == MI_OK)
+        printf("reqb_wakeup_success:recv len = %d\r\n",    mf_com_data.mf_length/8);
+
+
+        if(sof)
         {
-            printf("reqb_wakeup_success:recv len = %d\r\n",    mf_com_data.mf_length/8);
+            //      set_bit_mask(M_FCONB3,1,0x01);
+            //     set_bit_mask(M_FCONB3,1,0x02);
+        }
+        //EOF低电平最大验证设置为12.5ETU,MP300返回分别为12；12.5；12.6 最后一个有问题
+        if(eof)
+        {
+            //     set_bit_mask(M_FCONB3,1,0xc0);
+        }
 
-
-            if(sof)
-            {
-                //      set_bit_mask(M_FCONB3,1,0x01);
-                //     set_bit_mask(M_FCONB3,1,0x02);
-            }
-            //EOF低电平最大验证设置为12.5ETU,MP300返回分别为12；12.5；12.6 最后一个有问题
-            if(eof)
-            {
-                //     set_bit_mask(M_FCONB3,1,0xc0);
-            }
-
-            // rate ++;
-            //  if(rate == 4)rate = 1;
+        // rate ++;
+        //  if(rate == 4)rate = 1;
 #ifdef FPGA
-            if (rate == 1)
-            {
-                P1OUT &=~BIT7;
-            }
-            else
-            {
-                P1OUT |= BIT7;
-            }
-#endif
-
-            pcd_set_rate(rate);
-
-            okcnt = 0;
-            testcnd = 10;
-            while(testcnd)
-            {
-                testcnd--;
-                txlen =5;
-
-                sendBuffer[0] = 0x00;
-                sendBuffer[1] = 0x84;
-                sendBuffer[2] = 0x00;
-                sendBuffer[3] = 0x00;
-                sendBuffer[4] = 0x04;
-
-                //   delay_1ms(5000);
-                if(Rfid_exchange(sendBuffer,txlen,recvBuffer,&uiRecLen) == MI_OK)
-                {
-                    okcnt ++;
-                    //   printf("block_exchange successful \r\n");
-                    continue;
-                }
-                else
-                {
-                    printf("block_exchange fail status 0x%x  \r\n",ret);
-                    break;
-                }
-
-            }
-            iso14443_4_deselect(0);
-            if(rate == 1)
-                cur_rate = 106;
-            else if(rate == 2)
-                cur_rate = 212;
-            else if(rate == 3)
-                cur_rate = 424;
-            else if(rate == 4)
-                cur_rate = 848;
-
-            printf("## TEST 10 times total in rata %d, pass %d times ##\r\n",rate,okcnt);
+        if (rate == 1)
+        {
+            P1OUT &=~BIT7;
         }
         else
         {
-            // printf("type B active fail:");
+            P1OUT |= BIT7;
         }
+#endif
+
+        pcd_set_rate(rate);
+
+        okcnt = 0;
+        testcnd = 10;
+        while(testcnd)
+        {
+            testcnd--;
+            txlen =5;
+
+            sendBuffer[0] = 0x00;
+            sendBuffer[1] = 0x84;
+            sendBuffer[2] = 0x00;
+            sendBuffer[3] = 0x00;
+            sendBuffer[4] = 0x04;
+            okcnt ++;
+
+//          //   delay_1ms(5000);
+//          if(Rfid_exchange(sendBuffer,txlen,recvBuffer,&uiRecLen) == MI_OK)
+//          {
+//              okcnt ++;
+//              //   printf("block_exchange successful \r\n");
+//              continue;
+//          }
+//          else
+//          {
+//              printf("block_exchange fail status 0x%x  \r\n",ret);
+//              break;
+//          }
+
+        }
+        iso14443_4_deselect(0);
+        if(rate == 1)
+            cur_rate = 106;
+        else if(rate == 2)
+            cur_rate = 212;
+        else if(rate == 3)
+            cur_rate = 424;
+        else if(rate == 4)
+            cur_rate = 848;
+
+        printf("## TEST 10 times total in rata %d, pass %d times ##\r\n",rate,okcnt);
     }
-
+    else
+    {
+        // printf("type B active fail:");
+    }
+    return card_det;
 }
-
-
-
-
-

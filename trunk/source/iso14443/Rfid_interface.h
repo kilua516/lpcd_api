@@ -98,7 +98,7 @@ void com_typea_rats(u8 * pcmd);
 void Rfid_Close(void);
 
 int test_a(u8 rate);
-void test_b(uchar rate);
+int test_b(uchar rate);
 char reqb_wakeup(uchar baud_speed);
 char Detect_ContactlessCard(void);
 u16 iISO14443TransMit(u8* pbInData, u16 dwInLen, u8* pbOutData, u16* pwOutLen);

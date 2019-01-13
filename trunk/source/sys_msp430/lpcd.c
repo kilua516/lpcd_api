@@ -479,7 +479,7 @@ void lpcd_init(unsigned char t1             ,
     int i;
 #endif
     lpcd_phase = phase_calib();
-    lpcd_phase += 5;
+    lpcd_phase += 4;
 //    printf("lpcd_phase: %x\n", lpcd_phase);
 
     write_reg(0x3f,0x01);
