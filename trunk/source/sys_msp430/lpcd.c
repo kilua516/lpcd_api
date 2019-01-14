@@ -668,85 +668,7 @@ void lpcd_exit()
     clear_bit_mask(DivIEnReg, BIT5);
 }
 
-int lpcd_sen_dec()
-{
-    unsigned char amp_mask = 0x28;
-    unsigned char amp;
-    unsigned char lpcd_amp_target;
-    unsigned char lpcd_amp_rlt;
-    unsigned char i;
-
-    lpcd_cfg.phase = phase_calib();
-    lpcd_cfg.phase += lpcd_cfg.phase_offset;
-
-    amp = lpcd_cfg.amp;
-  
-    lpcd_amp_target = 0xf8;
-  
-    // large step adjust threshold
-    while (1)
-    {
-        write_reg(0x3f, 0x01);
-        for (i = 0; i < 8; i++)
-        {
-            write_reg(0x5b+i, lut[lpcd_cfg.thd_idx+i]);
-        }
-        write_reg(0x3f, 0x00);
-
-        lpcd_amp_rlt = lpcd_amp_test(amp);
-        if (lpcd_amp_rlt == 0xff)
-        {
-            if (lpcd_cfg.thd_idx >= 3)
-            {
-                lpcd_cfg.thd_idx -= 3;
-            }
-            else
-                return -1;
-        }
-        else if (lpcd_amp_rlt == 0x00)
-        {
-            if (lpcd_cfg.thd_idx < (INDEX_NUM-3))
-            {
-                lpcd_cfg.thd_idx += 3;
-            }
-            else
-                return -1;
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    if (amp != lpcd_cfg.min_amp)
-    {
-        if (lpcd_amp_search(lpcd_amp_target, amp, 0) == 0)
-            return 0;
-    }
-  
-    if ((lpcd_cfg.thd_idx+7) < (INDEX_NUM-1))
-    {
-        amp = lpcd_cfg.amp;
-        lpcd_cfg.thd_idx++;
-  
-        write_reg(0x3f, 0x01);
-        for (i = 0; i < 8; i++)
-        {
-            write_reg(0x5b+i, lut[lpcd_cfg.thd_idx+i]);
-        }
-        write_reg(0x3f, 0x00);
-  
-        if (amp != lpcd_cfg.max_amp)
-        {
-            if (lpcd_amp_search(lpcd_amp_target, amp, 1) == 0)
-                return 0;
-        }
-    }
-
-    return -1;
-}
-
-int lpcd_sen_inc()
+int lpcd_sen_adj()
 {
     unsigned char amp_mask = 0x28;
     unsigned char amp;
@@ -796,28 +718,55 @@ int lpcd_sen_inc()
         }
     }
 
-    if (amp != lpcd_cfg.max_amp)
+    while (1)
     {
-        if (lpcd_amp_search(lpcd_amp_target, amp, 1) == 0)
-            return 0;
-    }
-  
-    if (lpcd_cfg.thd_idx > 0)
-    {
-        amp = lpcd_cfg.amp;
-        lpcd_cfg.thd_idx--;
-  
-        write_reg(0x3f, 0x01);
-        for (i = 0; i < 8; i++)
+        lpcd_amp_rlt = lpcd_amp_test(amp);
+
+        if (lpcd_amp_rlt > lpcd_amp_target)   // current amp smaller than target amp
         {
-            write_reg(0x5b+i, lut[lpcd_cfg.thd_idx+i]);
+            if (lpcd_amp_search(lpcd_amp_target, amp, 1) == 0)
+                return 0;
+          
+            if (lpcd_cfg.thd_idx > 0)
+            {
+                amp = lpcd_cfg.amp;
+                lpcd_cfg.thd_idx--;
+          
+                write_reg(0x3f, 0x01);
+                for (i = 0; i < 8; i++)
+                {
+                    write_reg(0x5b+i, lut[lpcd_cfg.thd_idx+i]);
+                }
+                write_reg(0x3f, 0x00);
+          
+                if (lpcd_amp_search(lpcd_amp_target, amp, 0) == 0)
+                    return 0;
+            }
+            else
+                return -1;
         }
-        write_reg(0x3f, 0x00);
-  
-        if (amp != lpcd_cfg.min_amp)
+        else                                  // current amp larger than target amp
         {
             if (lpcd_amp_search(lpcd_amp_target, amp, 0) == 0)
                 return 0;
+          
+            if ((lpcd_cfg.thd_idx+7) < (INDEX_NUM-1))
+            {
+                amp = lpcd_cfg.amp;
+                lpcd_cfg.thd_idx++;
+          
+                write_reg(0x3f, 0x01);
+                for (i = 0; i < 8; i++)
+                {
+                    write_reg(0x5b+i, lut[lpcd_cfg.thd_idx+i]);
+                }
+                write_reg(0x3f, 0x00);
+          
+                if (lpcd_amp_search(lpcd_amp_target, amp, 1) == 0)
+                    return 0;
+            }
+            else
+                return -1;
         }
     }
 

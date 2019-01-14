@@ -66,8 +66,7 @@ void lpcd_entry();
 
 void lpcd_exit();
 
-int lpcd_sen_dec();
-int lpcd_sen_inc();
+int lpcd_sen_adj();
 
 int lpcd_amp_search(unsigned char lpcd_amp_target, unsigned char amp, unsigned char dir);
 

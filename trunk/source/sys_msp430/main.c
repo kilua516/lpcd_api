@@ -231,7 +231,7 @@ void main( void )
                 {
                     printf("******* DC UP SHIFT DETECT! *******\n");
                     upshift_det_cnt = 0;
-                    lpcd_sen_dec();
+                    lpcd_sen_adj();
                 }
             }
             else
@@ -253,7 +253,7 @@ void main( void )
                 {
                     printf("******* DC DOWN SHIFT DETECT! *******\n");
                     downshift_det_cnt = 0;
-                    lpcd_sen_inc();
+                    lpcd_sen_adj();
                 }
             }
             else
