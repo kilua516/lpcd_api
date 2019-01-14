@@ -27,6 +27,7 @@
 #include "../iso14443/sl2523.h"
 #include "../common/usmart.h"
 #include "../common/Usart.h"
+#include "../iso14443/Rfid_interface.h"
 
 
 extern volatile u8 irq_flag_io;
@@ -67,11 +68,14 @@ void main( void )
     uchar upshift_det_cnt;
     uchar downshift_det_cnt;
     uchar dc_shift = 0;
+    uchar lpcd_amp_rlt;
     int i = 0;
     int j = 0;
     int k = 0;
-    unsigned char idx[8];
+    unsigned long wait_cnt;
     unsigned char calib_rlt[8];
+    unsigned char amp;
+    unsigned char amp_mask = 0x28;
 
     init_mcu();
     //SL1523rf_init();
@@ -105,35 +109,41 @@ void main( void )
 
     osc_calib();
     
-#ifdef _CALIB_
-    lpcd_calib(idx);
-    for (i = 0; i < 8; i++)
-    {
-        printf("idx[%d] = %d;\n", i, idx[i]);
-    }
-    while(1);
-#endif
-    
-    idx[0] = 12;
-    idx[1] = 13;
-    idx[2] = 14;
-    idx[3] = 15;
-    idx[4] = 16;
-    idx[5] = 17;
-    idx[6] = 18;
-    idx[7] = 19;
-    lpcd_init(0x12, idx, 2, 1);
+    lpcd_cfg.thd_idx = 12;
+    lpcd_cfg.t1 = 0x12;
+    lpcd_cfg.sense = 2;
+    lpcd_cfg.dc_shift_det_en = 1;
+    lpcd_cfg.amp = 0x20;
+    lpcd_cfg.min_amp = 0x0d;
+    lpcd_cfg.max_amp = 0x3f;
+    lpcd_cfg.phase_offset = 4;
+    lpcd_init();
     
     upshift_det_cnt = 0;
     downshift_det_cnt = 0;
     
-//    pcd_antenna_on();
-//    while(1)
-//        test_a();
-    
     write_reg(0x3f,0x01);
     write_reg(0x68,0x03);
     write_reg(0x3f,0x00);
+    
+//  while(1)
+//  {
+//      for (amp = 0x02; amp < 0x40; amp++)
+//      {
+//          write_reg(ModGsPReg, amp ^ amp_mask);
+//          write_reg(CWGsPReg, amp ^ amp_mask);
+//          pcd_antenna_on();
+//          delay_1ms(1);
+//          pcd_antenna_off();
+//      }
+//  }
+
+//  pcd_antenna_on();
+//  while(1)
+//  {
+//      test_a(1);
+//      test_b(1);
+//  }
     
     while (1) {
         card_detect = 0;
@@ -141,56 +151,77 @@ void main( void )
         lpcd_entry();
         printf("ENTER LPCD PROC!\n");
         
+        wait_cnt = 0;
         i = 0;
         k = 0;
         while (1) {
-            recv_data = read_reg(0x05);
-            if ((recv_data & 0x20) == 0x20) {
-                lpcd_exit();
-                printf("\nEXIT LPCD PROC!\n");
-                
-                write_reg(0x05,0x20);
-                while (irq_flag_io == 0);  //yht
-                irq_flag_io = 0;
-
-                write_reg(0x3f, 0x01);
-                recv_data = read_reg(0x59);
-                write_reg(0x3f, 0x00);
-
-                if ((recv_data & 0x04) == 0x04)
-                {
-                    card_detect = 1;
-                }
-                else if ((recv_data & 0x02) == 0x02)
-                {
-                    dc_shift = 1;
-                }
-
-                break;
-            }
-            i++;
-            if (i == 10000) {
-//                printf("Waiting LPCD Trigger!\n");
-                printf(".");
-            }
-        }
-        
+#ifdef NOT_IRQ
+            while(INT_PIN == 0)
+#else
+            while (irq_flag_io == 0)
+#endif
+            {
+                wait_cnt++;
+                if (wait_cnt == 500000) {
+                    wait_cnt = 0;
+                    printf(".");
 #ifdef LPCD_DEBUG
-        write_reg(0x3f,0x01);
-        for (i = 0; i < 8; i++)
-        {
-            temp_buf[i] = read_reg(0x5b+i);
-            printf("reg0x%x: %x ",0x5b+i,(temp_buf[i]&0x80)>>7);
-            printf("%0.2x\t",(temp_buf[i]&0x7F));
-            printf("%f\t",voltage[idx[i]]);
-            printf("%d\n",idx[i]);
-        }
-        write_reg(0x3f,0x00);
-        printf("\n");
+                    write_reg(0x01,0x00);
+                    delay_1ms(1);
+                    write_reg(0x3f,0x01);
+                    lpcd_amp_rlt = 0;
+                    for (i = 0; i < 8; i++)
+                    {
+                        temp_buf[i] = read_reg(0x5b+i);
+                        printf("reg0x%x: %x ",0x5b+i,(temp_buf[i]&0x80)>>7);
+                        printf("%0.2x\t",(temp_buf[i]&0x7F));
+                        lpcd_amp_rlt >>= 1;
+                        lpcd_amp_rlt |= (read_reg(0x5b+i) & 0x80);
+                    }
+                    write_reg(0x3f,0x00);
+                    write_reg(0x01,0x10);
+                    printf("idx: %0.2d, amp: %0.2x, lpcd_amp_rlt: %x\n", lpcd_cfg.thd_idx, lpcd_cfg.amp, lpcd_amp_rlt);
+                    printf("\n");
 #endif
 
+                }
+            }
+#ifndef NOT_IRQ
+            irq_flag_io = 0;
+#endif
+            recv_data = read_reg(0x05);
+            lpcd_exit();
+            printf("\nEXIT LPCD PROC!\n");
+
+            if ((recv_data & 0x20) == 0x20) {
+                write_reg(0x05,0x20);
+                break;
+            }
+            else
+            {
+                write_reg(0x04,0x7e);
+                write_reg(0x05,0x7e);
+                lpcd_entry();
+                printf("ENTER LPCD PROC!\n");
+            }
+        }
+
+        write_reg(0x3f, 0x01);
+        recv_data = read_reg(0x59);
+        write_reg(0x3f, 0x00);
+
+        if ((recv_data & 0x04) == 0x04)
+        {
+            card_detect = 1;
+        }
+        else if ((recv_data & 0x02) == 0x02)
+        {
+            dc_shift = 1;
+        }
+        
         if (card_detect == 1) {
             card_detect = test_a(1);
+            card_detect |= test_b(1);
             if (card_detect != 1)
             {
                 printf("******* CARD READ FAIL! *******\n");
@@ -200,14 +231,7 @@ void main( void )
                 {
                     printf("******* DC UP SHIFT DETECT! *******\n");
                     upshift_det_cnt = 0;
-                    if (idx[7] < (INDEX_NUM - 1))
-                    {
-                        for (i = 0; i < 8; i++)
-                        {
-                            idx[i]++;
-                        }
-                        lpcd_init(0x12, idx, 2, 1);
-                    }
+                    lpcd_sen_adj();
                 }
             }
             else
@@ -219,6 +243,7 @@ void main( void )
         }
         else if (dc_shift == 1) {
             card_detect = test_a(1);
+            card_detect |= test_b(1);
             if (card_detect != 1)
             {
                 printf("******* CARD READ FAIL! *******\n");
@@ -228,14 +253,7 @@ void main( void )
                 {
                     printf("******* DC DOWN SHIFT DETECT! *******\n");
                     downshift_det_cnt = 0;
-                    if (idx[0] > 0)
-                    {
-                        for (i = 0; i < 8; i++)
-                        {
-                            idx[i]--;
-                        }
-                        lpcd_init(0x12, idx, 2, 1);
-                    }
+                    lpcd_sen_adj();
                 }
             }
             else
