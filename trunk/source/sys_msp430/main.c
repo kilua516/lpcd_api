@@ -68,6 +68,7 @@ void main( void )
     uchar upshift_det_cnt;
     uchar downshift_det_cnt;
     uchar dc_shift = 0;
+    uchar lpcd_amp_rlt;
     int i = 0;
     int j = 0;
     int k = 0;
@@ -126,7 +127,8 @@ void main( void )
     lpcd_cfg.idx[5] = 17;
     lpcd_cfg.idx[6] = 18;
     lpcd_cfg.idx[7] = 19;
-    lpcd_cfg.t1 = 0x12;
+//  lpcd_cfg.t1 = 0x12;
+    lpcd_cfg.t1 = 0x02;
     lpcd_cfg.sense = 2;
     lpcd_cfg.dc_shift_det_en = 1;
     lpcd_cfg.amp = 0x20;
@@ -181,6 +183,27 @@ void main( void )
                 if (wait_cnt == 500000) {
                     wait_cnt = 0;
                     printf(".");
+#ifdef LPCD_DEBUG
+                    write_reg(0x01,0x00);
+                    delay_1ms(1);
+                    write_reg(0x3f,0x01);
+                    lpcd_amp_rlt = 0;
+                    for (i = 0; i < 8; i++)
+                    {
+                        temp_buf[i] = read_reg(0x5b+i);
+                        printf("reg0x%x: %x ",0x5b+i,(temp_buf[i]&0x80)>>7);
+                        printf("%0.2x\t",(temp_buf[i]&0x7F));
+                        printf("%f\t",voltage[idx[i]]);
+                        printf("%d\n",idx[i]);
+                        lpcd_amp_rlt >>= 1;
+                        lpcd_amp_rlt |= (read_reg(0x5b+i) & 0x80);
+                    }
+                    write_reg(0x3f,0x00);
+                    write_reg(0x01,0x10);
+                    printf("idx[0]: %0.2d, amp: %0.2x, lpcd_amp_rlt: %x\n", lpcd_cfg.idx[0], lpcd_cfg.amp, lpcd_amp_rlt);
+                    printf("\n");
+#endif
+
                 }
             }
 #ifndef NOT_IRQ
@@ -216,20 +239,6 @@ void main( void )
             dc_shift = 1;
         }
         
-#ifdef LPCD_DEBUG
-        write_reg(0x3f,0x01);
-        for (i = 0; i < 8; i++)
-        {
-            temp_buf[i] = read_reg(0x5b+i);
-            printf("reg0x%x: %x ",0x5b+i,(temp_buf[i]&0x80)>>7);
-            printf("%0.2x\t",(temp_buf[i]&0x7F));
-            printf("%f\t",voltage[idx[i]]);
-            printf("%d\n",idx[i]);
-        }
-        write_reg(0x3f,0x00);
-        printf("\n");
-#endif
-
         if (card_detect == 1) {
             card_detect = test_a(1);
             card_detect |= test_b(1);

@@ -683,12 +683,45 @@ int lpcd_sen_dec()
   
     lpcd_amp_target = 0xf8;
   
-    write_reg(0x3f, 0x01);
-    for (i = 0; i < 8; i++)
+    while (1)
     {
-        write_reg(0x5b+i, lut[lpcd_cfg.idx[i]]);
+        write_reg(0x3f, 0x01);
+        for (i = 0; i < 8; i++)
+        {
+            write_reg(0x5b+i, lut[lpcd_cfg.idx[i]]);
+        }
+        write_reg(0x3f, 0x00);
+
+        lpcd_amp_rlt = lpcd_amp_test(amp);
+        if (lpcd_amp_rlt == 0xff)
+        {
+            if (lpcd_cfg.idx[0] >= 3)
+            {
+                for (i = 0; i < 8; i++)
+                {
+                    lpcd_cfg.idx[i] -= 3;
+                }
+            }
+            else
+                return -1;
+        }
+        else if (lpcd_amp_rlt == 0x00)
+        {
+            if (lpcd_cfg.idx[0] < (INDEX_NUM-3))
+            {
+                for (i = 0; i < 8; i++)
+                {
+                    lpcd_cfg.idx[i] += 3;
+                }
+            }
+            else
+                return -1;
+        }
+        else
+        {
+            break;
+        }
     }
-    write_reg(0x3f, 0x00);
 
     while (amp != lpcd_cfg.min_amp)
     {
@@ -752,12 +785,45 @@ int lpcd_sen_inc()
   
     lpcd_amp_target = 0xf8;
   
-    write_reg(0x3f, 0x01);
-    for (i = 0; i < 8; i++)
+    while (1)
     {
-        write_reg(0x5b+i, lut[lpcd_cfg.idx[i]]);
+        write_reg(0x3f, 0x01);
+        for (i = 0; i < 8; i++)
+        {
+            write_reg(0x5b+i, lut[lpcd_cfg.idx[i]]);
+        }
+        write_reg(0x3f, 0x00);
+
+        lpcd_amp_rlt = lpcd_amp_test(amp);
+        if (lpcd_amp_rlt == 0xff)
+        {
+            if (lpcd_cfg.idx[0] >= 3)
+            {
+                for (i = 0; i < 8; i++)
+                {
+                    lpcd_cfg.idx[i] -= 3;
+                }
+            }
+            else
+                return -1;
+        }
+        else if (lpcd_amp_rlt == 0x00)
+        {
+            if (lpcd_cfg.idx[0] < (INDEX_NUM-3))
+            {
+                for (i = 0; i < 8; i++)
+                {
+                    lpcd_cfg.idx[i] += 3;
+                }
+            }
+            else
+                return -1;
+        }
+        else
+        {
+            break;
+        }
     }
-    write_reg(0x3f, 0x00);
 
     while (amp != lpcd_cfg.max_amp)
     {
