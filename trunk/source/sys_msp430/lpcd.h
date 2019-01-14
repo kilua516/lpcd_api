@@ -27,6 +27,21 @@
 
 //#define LPCD_DEBUG
 
+typedef struct
+{
+    unsigned char t1;
+    unsigned char dc_shift_det_en;
+    unsigned char phase;
+    unsigned char phase_offset;
+    unsigned char amp;
+    unsigned char max_amp;
+    unsigned char min_amp;
+    unsigned char sense;
+    unsigned char idx[8];
+} lpcd_cfg_t;
+
+extern lpcd_cfg_t lpcd_cfg;
+
 extern double voltage[];
 
 extern unsigned char lut[];
@@ -34,6 +49,8 @@ extern unsigned char lut[];
 void lpcd_find_edge(int lower_bound, int upper_bound, int *lower_edge);
 
 void do_lpcd_calib(int upper_bound, int lower_bound, uchar *calib_rlt, uchar *idx);
+
+unsigned char lpcd_amp_test(unsigned char amp);
 
 void osc_calib();
 
@@ -43,14 +60,14 @@ void lpcd_calib_callback(unsigned char proc);
 
 unsigned char phase_calib();
 
-void lpcd_init(unsigned char t1             ,
-               unsigned char *idx           ,
-               unsigned char sense          ,
-               unsigned char dc_shift_det_en);
+void lpcd_init();
 
 void lpcd_entry();
 
 void lpcd_exit();
+
+int lpcd_sen_dec();
+int lpcd_sen_inc();
 
 #define ASSERT_SPI_CLK_LOW    \
     P5DIR |= BIT3;            \

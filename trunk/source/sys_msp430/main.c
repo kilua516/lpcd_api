@@ -74,6 +74,8 @@ void main( void )
     unsigned long wait_cnt;
     unsigned char idx[8];
     unsigned char calib_rlt[8];
+    unsigned char amp;
+    unsigned char amp_mask = 0x28;
 
     init_mcu();
     //SL1523rf_init();
@@ -116,15 +118,22 @@ void main( void )
     while(1);
 #endif
     
-    idx[0] = 12;
-    idx[1] = 13;
-    idx[2] = 14;
-    idx[3] = 15;
-    idx[4] = 16;
-    idx[5] = 17;
-    idx[6] = 18;
-    idx[7] = 19;
-    lpcd_init(0x12, idx, 2, 1);
+    lpcd_cfg.idx[0] = 12;
+    lpcd_cfg.idx[1] = 13;
+    lpcd_cfg.idx[2] = 14;
+    lpcd_cfg.idx[3] = 15;
+    lpcd_cfg.idx[4] = 16;
+    lpcd_cfg.idx[5] = 17;
+    lpcd_cfg.idx[6] = 18;
+    lpcd_cfg.idx[7] = 19;
+    lpcd_cfg.t1 = 0x12;
+    lpcd_cfg.sense = 2;
+    lpcd_cfg.dc_shift_det_en = 1;
+    lpcd_cfg.amp = 0x20;
+    lpcd_cfg.min_amp = 0x0d;
+    lpcd_cfg.max_amp = 0x3f;
+    lpcd_cfg.phase_offset = 4;
+    lpcd_init();
     
     upshift_det_cnt = 0;
     downshift_det_cnt = 0;
@@ -133,12 +142,24 @@ void main( void )
     write_reg(0x68,0x03);
     write_reg(0x3f,0x00);
     
-//    pcd_antenna_on();
-//    while(1)
-//    {
-//        test_a(1);
-//        test_b(1);
-//    }
+//  while(1)
+//  {
+//      for (amp = 0x02; amp < 0x40; amp++)
+//      {
+//          write_reg(ModGsPReg, amp ^ amp_mask);
+//          write_reg(CWGsPReg, amp ^ amp_mask);
+//          pcd_antenna_on();
+//          delay_1ms(1);
+//          pcd_antenna_off();
+//      }
+//  }
+
+//  pcd_antenna_on();
+//  while(1)
+//  {
+//      test_a(1);
+//      test_b(1);
+//  }
     
     while (1) {
         card_detect = 0;
@@ -221,14 +242,7 @@ void main( void )
                 {
                     printf("******* DC UP SHIFT DETECT! *******\n");
                     upshift_det_cnt = 0;
-                    if (idx[7] < (INDEX_NUM - 1))
-                    {
-                        for (i = 0; i < 8; i++)
-                        {
-                            idx[i]++;
-                        }
-                        lpcd_init(0x12, idx, 2, 1);
-                    }
+                    lpcd_sen_dec();
                 }
             }
             else
@@ -250,14 +264,7 @@ void main( void )
                 {
                     printf("******* DC DOWN SHIFT DETECT! *******\n");
                     downshift_det_cnt = 0;
-                    if (idx[0] > 0)
-                    {
-                        for (i = 0; i < 8; i++)
-                        {
-                            idx[i]--;
-                        }
-                        lpcd_init(0x12, idx, 2, 1);
-                    }
+                    lpcd_sen_inc();
                 }
             }
             else
