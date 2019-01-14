@@ -73,7 +73,6 @@ void main( void )
     int j = 0;
     int k = 0;
     unsigned long wait_cnt;
-    unsigned char idx[8];
     unsigned char calib_rlt[8];
     unsigned char amp;
     unsigned char amp_mask = 0x28;
@@ -110,25 +109,8 @@ void main( void )
 
     osc_calib();
     
-#ifdef _CALIB_
-    lpcd_calib(idx);
-    for (i = 0; i < 8; i++)
-    {
-        printf("idx[%d] = %d;\n", i, idx[i]);
-    }
-    while(1);
-#endif
-    
-    lpcd_cfg.idx[0] = 12;
-    lpcd_cfg.idx[1] = 13;
-    lpcd_cfg.idx[2] = 14;
-    lpcd_cfg.idx[3] = 15;
-    lpcd_cfg.idx[4] = 16;
-    lpcd_cfg.idx[5] = 17;
-    lpcd_cfg.idx[6] = 18;
-    lpcd_cfg.idx[7] = 19;
-//  lpcd_cfg.t1 = 0x12;
-    lpcd_cfg.t1 = 0x02;
+    lpcd_cfg.thd_idx = 12;
+    lpcd_cfg.t1 = 0x12;
     lpcd_cfg.sense = 2;
     lpcd_cfg.dc_shift_det_en = 1;
     lpcd_cfg.amp = 0x20;
@@ -193,14 +175,12 @@ void main( void )
                         temp_buf[i] = read_reg(0x5b+i);
                         printf("reg0x%x: %x ",0x5b+i,(temp_buf[i]&0x80)>>7);
                         printf("%0.2x\t",(temp_buf[i]&0x7F));
-                        printf("%f\t",voltage[idx[i]]);
-                        printf("%d\n",idx[i]);
                         lpcd_amp_rlt >>= 1;
                         lpcd_amp_rlt |= (read_reg(0x5b+i) & 0x80);
                     }
                     write_reg(0x3f,0x00);
                     write_reg(0x01,0x10);
-                    printf("idx[0]: %0.2d, amp: %0.2x, lpcd_amp_rlt: %x\n", lpcd_cfg.idx[0], lpcd_cfg.amp, lpcd_amp_rlt);
+                    printf("idx: %0.2d, amp: %0.2x, lpcd_amp_rlt: %x\n", lpcd_cfg.thd_idx, lpcd_cfg.amp, lpcd_amp_rlt);
                     printf("\n");
 #endif
 

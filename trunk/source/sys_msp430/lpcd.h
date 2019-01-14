@@ -37,7 +37,7 @@ typedef struct
     unsigned char max_amp;
     unsigned char min_amp;
     unsigned char sense;
-    unsigned char idx[8];
+    unsigned char thd_idx;
 } lpcd_cfg_t;
 
 extern lpcd_cfg_t lpcd_cfg;
@@ -68,6 +68,8 @@ void lpcd_exit();
 
 int lpcd_sen_dec();
 int lpcd_sen_inc();
+
+int lpcd_amp_search(unsigned char lpcd_amp_target, unsigned char amp, unsigned char dir);
 
 #define ASSERT_SPI_CLK_LOW    \
     P5DIR |= BIT3;            \
