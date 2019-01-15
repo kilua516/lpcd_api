@@ -116,7 +116,7 @@ void main( void )
     lpcd_cfg.dc_shift_det_en = 1;
     lpcd_cfg.amp = 0x20;
     lpcd_cfg.min_amp = 0x0d;
-    lpcd_cfg.max_amp = 0x3f;
+    lpcd_cfg.max_amp = 0x30;
     lpcd_cfg.phase_offset = 4;
     lpcd_init();
     
