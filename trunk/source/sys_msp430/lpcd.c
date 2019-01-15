@@ -13,6 +13,7 @@
  *@    <author>     <time>     <version >   <desc>
  *@    rpliu        20181225   V1.0.0       Initial Version
  *@    rpliu        20190110   V1.0.1       add phase auto calibration
+ *@    rpliu        20190115   V2.0.0       new lpcd adjust algorithm
 
 *************************************************************
 */
