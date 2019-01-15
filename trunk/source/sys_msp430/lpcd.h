@@ -69,7 +69,9 @@ void lpcd_exit();
 
 int lpcd_sen_adj();
 
-int lpcd_amp_search(unsigned char lpcd_amp_target, unsigned char amp, unsigned char dir);
+unsigned char lpcd_amp_search(unsigned char lpcd_amp_target, unsigned char amp, unsigned char dir);
+unsigned char lpcd_amp_search_floor(unsigned char lpcd_amp_target, unsigned char amp, unsigned char dir);
+unsigned char lpcd_amp_search_ceil(unsigned char lpcd_amp_target, unsigned char amp, unsigned char dir);
 
 #define ASSERT_SPI_CLK_LOW    \
     P5DIR |= BIT3;            \
