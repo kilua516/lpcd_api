@@ -27,6 +27,8 @@
 #define INDEX_NUM   45
 #define THD_ADJ_CNT 5
 
+#define SRCH_STEP 4
+
 //#define LPCD_DEBUG
 
 typedef struct
