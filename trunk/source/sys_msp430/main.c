@@ -12,6 +12,7 @@
  *@History:
  *@    <author>     <time>     <version >   <desc>
  *@    rpliu        20181225   V1.0.0       Initial Version
+ *@    rpliu        20190115   V2.0.0       new lpcd adjust algorithm
 
 *************************************************************
 */
@@ -111,7 +112,7 @@ void main( void )
     
     lpcd_cfg.thd_idx = 12;
     lpcd_cfg.t1 = 0x12;
-    lpcd_cfg.sense = 2;
+    lpcd_cfg.sense = 3;
     lpcd_cfg.dc_shift_det_en = 1;
     lpcd_cfg.amp = 0x20;
     lpcd_cfg.min_amp = 0x0d;
