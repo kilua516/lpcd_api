@@ -248,6 +248,8 @@ unsigned char lpcd_amp_test(unsigned char amp)
     unsigned char reg_65;
     unsigned char reg_66;
     unsigned char calib_rlt;
+    unsigned char calib_rlt_filt;
+    unsigned char found_1;
     unsigned char recv_data;
     unsigned char i;
 
@@ -320,7 +322,22 @@ unsigned char lpcd_amp_test(unsigned char amp)
     write_reg(ModGsPReg, reg_29);
     write_reg(CWGsPReg, reg_28);
 
-    return calib_rlt;
+    found_1 = 0;
+    calib_rlt_filt = calib_rlt;
+    for (i = 0; i < 8; i++)
+    {
+        if (found_1 == 1)
+            calib_rlt_filt |= (0x01 << i);
+        if ((calib_rlt >> i) & 0x01)
+            found_1 = 1;
+    }
+
+    if (calib_rlt != calib_rlt_filt)
+    {
+        printf("lpcd_amp_test: result been filtered, original result is %x\n", calib_rlt);
+    }
+
+    return calib_rlt_filt;
 }
 
 void osc_calib()
@@ -601,7 +618,7 @@ void lpcd_init()
     
     for (i = 0; i < 8; i++)
     {
-        write_reg(0x5b+i, lut[lpcd_cfg.thd_idx+i]);
+        write_reg(0x5b+i, lut[lpcd_cfg.idx[i]]);
     }
 
 #ifdef LPCD_DEBUG    
@@ -614,25 +631,8 @@ void lpcd_init()
 #endif
 
     // set card detect threshold
-    switch (lpcd_cfg.sense)
-    {
-        case 0:
-            write_reg(0x55, 0x80);
-            write_reg(0x56, 0xff);
-            break;
-        case 1:
-            write_reg(0x55, 0xc0);
-            write_reg(0x56, 0xfe);
-            break;
-        case 2:
-            write_reg(0x55, 0xe0);
-            write_reg(0x56, 0xfc);
-            break;
-        default:
-            write_reg(0x55, 0xe0);
-            write_reg(0x56, 0xf8);
-            break;
-    }
+    write_reg(0x55, 0x00);
+    write_reg(0x56, 0xff);
     
     write_reg(0x3f,0x00);
 
@@ -697,12 +697,8 @@ void lpcd_exit()
 
 int lpcd_sen_adj()
 {
-    const unsigned char lpcd_amp_thd1 = 0xf8;
-    const unsigned char lpcd_amp_thd2 = 0xe0;
-    const unsigned char amp_mask = 0x28;
-    unsigned char lpcd_amp_target1;
-    unsigned char lpcd_amp_target2;
-    unsigned char amp;
+    const unsigned char lpcd_amp_thd = 0xf0;
+    char lpcd_idx_adj_val;
     unsigned char amp_srch_rlt1;
     unsigned char amp_srch_rlt2;
     unsigned char lpcd_amp_rlt;
@@ -711,309 +707,263 @@ int lpcd_sen_adj()
     lpcd_cfg.phase = phase_calib();
     lpcd_cfg.phase += lpcd_cfg.phase_offset;
 
-    amp = lpcd_cfg.amp;
-  
+    // index expand
+    switch (lpcd_cfg.sense)
+    {
+        case 0:
+            lpcd_cfg.idx[1] = lpcd_cfg.idx[0]+1;
+            lpcd_cfg.idx[2] = lpcd_cfg.idx[0]+2;
+            lpcd_cfg.idx[3] = lpcd_cfg.idx[0]+3;
+            lpcd_cfg.idx[4] = lpcd_cfg.idx[7]-3;
+            lpcd_cfg.idx[5] = lpcd_cfg.idx[7]-2;
+            lpcd_cfg.idx[6] = lpcd_cfg.idx[7]-1;
+            break;
+        case 1:
+            lpcd_cfg.idx[0] = lpcd_cfg.idx[1]-1;
+            lpcd_cfg.idx[2] = lpcd_cfg.idx[1]+1;
+            lpcd_cfg.idx[3] = lpcd_cfg.idx[1]+2;
+            lpcd_cfg.idx[4] = lpcd_cfg.idx[6]-2;
+            lpcd_cfg.idx[5] = lpcd_cfg.idx[6]-1;
+            lpcd_cfg.idx[7] = lpcd_cfg.idx[6]+1;
+            break;
+        case 2:
+            lpcd_cfg.idx[0] = lpcd_cfg.idx[2]-2;
+            lpcd_cfg.idx[1] = lpcd_cfg.idx[2]-1;
+            lpcd_cfg.idx[3] = lpcd_cfg.idx[2]+1;
+            lpcd_cfg.idx[4] = lpcd_cfg.idx[5]-1;
+            lpcd_cfg.idx[6] = lpcd_cfg.idx[5]+1;
+            lpcd_cfg.idx[7] = lpcd_cfg.idx[5]+2;
+            break;
+        default:
+            lpcd_cfg.idx[0] = lpcd_cfg.idx[3]-3;
+            lpcd_cfg.idx[1] = lpcd_cfg.idx[3]-2;
+            lpcd_cfg.idx[2] = lpcd_cfg.idx[3]-1;
+            lpcd_cfg.idx[5] = lpcd_cfg.idx[4]+1;
+            lpcd_cfg.idx[6] = lpcd_cfg.idx[4]+2;
+            lpcd_cfg.idx[7] = lpcd_cfg.idx[4]+3;
+            break;
+    }
+
     // large step adjust threshold
     while (1)
     {
         write_reg(0x3f, 0x01);
         for (i = 0; i < 8; i++)
         {
-            write_reg(0x5b+i, lut[lpcd_cfg.thd_idx+i]);
+            write_reg(0x5b+i, lut[lpcd_cfg.idx[i]]);
         }
         write_reg(0x3f, 0x00);
 
-        lpcd_amp_rlt = lpcd_amp_test(amp);
+        lpcd_amp_rlt = lpcd_amp_test(lpcd_cfg.default_amp);
+        LPCD_AMP_TEST_INFO("lpcd_sen_adj", lpcd_cfg.default_amp, lpcd_amp_rlt)
+
         if (lpcd_amp_rlt == 0xff)
         {
-            if (lpcd_cfg.thd_idx >= 3)
-            {
-                lpcd_cfg.thd_idx -= 3;
-            }
+            if (lpcd_cfg.idx[0] >= 6)
+                lpcd_idx_adj_val = -6;
+            else if (lpcd_cfg.idx[0] >= 5)
+                lpcd_idx_adj_val = -5;
+            else if (lpcd_cfg.idx[0] >= 4)
+                lpcd_idx_adj_val = -4;
+            else
+                return -1;
+        }
+        else if (lpcd_amp_rlt == 0xfe)
+        {
+            if (lpcd_cfg.idx[0] >= 5)
+                lpcd_idx_adj_val = -5;
+            else if (lpcd_cfg.idx[0] >= 4)
+                lpcd_idx_adj_val = -4;
+            else if (lpcd_cfg.idx[0] >= 3)
+                lpcd_idx_adj_val = -3;
+            else
+                return -1;
+        }
+        else if (lpcd_amp_rlt == 0xfc)
+        {
+            if (lpcd_cfg.idx[0] >= 3)
+                lpcd_idx_adj_val = -3;
+            else if (lpcd_cfg.idx[0] >= 2)
+                lpcd_idx_adj_val = -2;
+            else
+                return -1;
+        }
+        else if (lpcd_amp_rlt == 0xf8)
+        {
+            if (lpcd_cfg.idx[0] >= 1)
+                lpcd_idx_adj_val = -1;
+            else
+                return -1;
+        }
+        else if (lpcd_amp_rlt == 0xf0)
+        {
+            break;
+        }
+        else if (lpcd_amp_rlt == 0xe0)
+        {
+            if ((lpcd_cfg.idx[7]) < (INDEX_NUM-1))
+                lpcd_idx_adj_val = 1;
+            else
+                return -1;
+        }
+        else if (lpcd_amp_rlt == 0xc0)
+        {
+            if ((lpcd_cfg.idx[7]) < (INDEX_NUM-3))
+                lpcd_idx_adj_val = 3;
+            else if ((lpcd_cfg.idx[7]) < (INDEX_NUM-2))
+                lpcd_idx_adj_val = 2;
+            else
+                return -1;
+        }
+        else if (lpcd_amp_rlt == 0x80)
+        {
+            if ((lpcd_cfg.idx[7]) < (INDEX_NUM-5))
+                lpcd_idx_adj_val = 5;
+            else if ((lpcd_cfg.idx[7]) < (INDEX_NUM-4))
+                lpcd_idx_adj_val = 4;
+            else if ((lpcd_cfg.idx[7]) < (INDEX_NUM-3))
+                lpcd_idx_adj_val = 3;
             else
                 return -1;
         }
         else if (lpcd_amp_rlt == 0x00)
         {
-            if ((lpcd_cfg.thd_idx+7) < (INDEX_NUM-3))
-            {
-                lpcd_cfg.thd_idx += 3;
-            }
+            if ((lpcd_cfg.idx[7]) < (INDEX_NUM-6))
+                lpcd_idx_adj_val = 6;
+            else if ((lpcd_cfg.idx[7]) < (INDEX_NUM-5))
+                lpcd_idx_adj_val = 5;
+            else if ((lpcd_cfg.idx[7]) < (INDEX_NUM-4))
+                lpcd_idx_adj_val = 4;
             else
                 return -1;
         }
         else
         {
-            break;
+            return -1;
+        }
+
+        // adjust idx according to previous test results
+        for (i = 0; i < 8; i++)
+        {
+            lpcd_cfg.idx[i] += lpcd_idx_adj_val;
         }
     }
 
-    if (lpcd_cfg.sense == 3)
+    amp_srch_rlt1 = lpcd_amp_search_floor(lpcd_amp_thd, lpcd_cfg.min_amp, lpcd_cfg.default_amp);
+    if (amp_srch_rlt1 != 0)
     {
-        lpcd_amp_target1 = lpcd_amp_thd1;
-        lpcd_amp_target2 = lpcd_amp_thd2;
+        amp_srch_rlt2 = lpcd_amp_search_ceil(lpcd_amp_thd, lpcd_cfg.default_amp, lpcd_cfg.max_amp);
+        if (amp_srch_rlt2 == 0)
+            return -1;
     }
     else
+        return -1;
+
+    lpcd_cfg.amp = (amp_srch_rlt1 + amp_srch_rlt2) / 2;
+
+    switch (lpcd_cfg.sense)
     {
-        lpcd_amp_target1 = lpcd_amp_thd1;
-        lpcd_amp_target2 = lpcd_amp_thd1;
+        case 0:
+            lpcd_cfg.idx[1] = lpcd_cfg.idx[0];
+            lpcd_cfg.idx[2] = lpcd_cfg.idx[0];
+            lpcd_cfg.idx[3] = lpcd_cfg.idx[0];
+            lpcd_cfg.idx[4] = lpcd_cfg.idx[7];
+            lpcd_cfg.idx[5] = lpcd_cfg.idx[7];
+            lpcd_cfg.idx[6] = lpcd_cfg.idx[7];
+            break;
+        case 1:
+            lpcd_cfg.idx[0] = lpcd_cfg.idx[1];
+            lpcd_cfg.idx[2] = lpcd_cfg.idx[1];
+            lpcd_cfg.idx[3] = lpcd_cfg.idx[1];
+            lpcd_cfg.idx[4] = lpcd_cfg.idx[6];
+            lpcd_cfg.idx[5] = lpcd_cfg.idx[6];
+            lpcd_cfg.idx[7] = lpcd_cfg.idx[6];
+            break;
+        case 2:
+            lpcd_cfg.idx[0] = lpcd_cfg.idx[2];
+            lpcd_cfg.idx[1] = lpcd_cfg.idx[2];
+            lpcd_cfg.idx[3] = lpcd_cfg.idx[2];
+            lpcd_cfg.idx[4] = lpcd_cfg.idx[5];
+            lpcd_cfg.idx[6] = lpcd_cfg.idx[5];
+            lpcd_cfg.idx[7] = lpcd_cfg.idx[5];
+            break;
+        default:
+            lpcd_cfg.idx[0] = lpcd_cfg.idx[3];
+            lpcd_cfg.idx[1] = lpcd_cfg.idx[3];
+            lpcd_cfg.idx[2] = lpcd_cfg.idx[3];
+            lpcd_cfg.idx[5] = lpcd_cfg.idx[4];
+            lpcd_cfg.idx[6] = lpcd_cfg.idx[4];
+            lpcd_cfg.idx[7] = lpcd_cfg.idx[4];
+            break;
     }
 
-    printf("lpcd_sen_adj: start search\n");
-    while (1)
+    printf("lpcd_info:\n");
+    printf("lpcd_cfg.t1: %x\n", lpcd_cfg.t1);
+    printf("lpcd_cfg.phase: %x\n", lpcd_cfg.phase);
+    printf("lpcd_cfg.amp: %x\n", lpcd_cfg.amp);
+    printf("lpcd_cfg.sense: %x\n", lpcd_cfg.sense);
+    for (i = 0; i < 8; i++)
     {
-        lpcd_amp_rlt = lpcd_amp_test(amp);
-        printf("lpcd_sen_adj: idx: %0.2d, amp: %0.2x, lpcd_amp_rlt: %x\n", lpcd_cfg.thd_idx, amp, lpcd_amp_rlt);
-
-        if (lpcd_amp_rlt > lpcd_amp_target1)        // current amp smaller than target amp
-        {
-            amp_srch_rlt1 = lpcd_amp_search_ceil(lpcd_amp_target1, amp, 1);   // find ceil of lpcd_amp_target1
-            if (amp_srch_rlt1 != 0)
-            {
-                amp_srch_rlt2 = lpcd_amp_search_floor(lpcd_amp_target2, amp, 1);  // find floor of lpcd_amp_target2
-                if (amp_srch_rlt2 != 0)
-                {
-                    lpcd_cfg.amp = (amp_srch_rlt1 + amp_srch_rlt2) / 2;
-                    return 0;
-                }
-            }
-          
-            if (lpcd_cfg.thd_idx > 0)
-            {
-                amp = lpcd_cfg.amp;
-                lpcd_cfg.thd_idx--;
-          
-                write_reg(0x3f, 0x01);
-                for (i = 0; i < 8; i++)
-                {
-                    write_reg(0x5b+i, lut[lpcd_cfg.thd_idx+i]);
-                }
-                write_reg(0x3f, 0x00);
-            }
-            else
-                return -1;
-        }
-        else if (lpcd_amp_rlt < lpcd_amp_target2)   // current amp larger than target amp
-        {
-            amp_srch_rlt1 = lpcd_amp_search_ceil(lpcd_amp_target1, amp, 0);   // find ceil of lpcd_amp_target1
-            if (amp_srch_rlt1 != 0)
-            {
-                amp_srch_rlt2 = lpcd_amp_search_floor(lpcd_amp_target2, amp, 0);  // find floor of lpcd_amp_target1
-                if (amp_srch_rlt2 != 0)
-                {
-                    lpcd_cfg.amp = (amp_srch_rlt1 + amp_srch_rlt2) / 2;
-                    return 0;
-                }
-            }
-          
-            if ((lpcd_cfg.thd_idx+7) < (INDEX_NUM-1))
-            {
-                amp = lpcd_cfg.amp;
-                lpcd_cfg.thd_idx++;
-          
-                write_reg(0x3f, 0x01);
-                for (i = 0; i < 8; i++)
-                {
-                    write_reg(0x5b+i, lut[lpcd_cfg.thd_idx+i]);
-                }
-                write_reg(0x3f, 0x00);
-            }
-            else
-                return -1;
-        }
-        else
-        {
-            amp_srch_rlt1 = lpcd_amp_search_ceil(lpcd_amp_target1, amp, 0);   // find ceil of lpcd_amp_target1
-            if (amp_srch_rlt1 != 0)
-            {
-                amp_srch_rlt2 = lpcd_amp_search_floor(lpcd_amp_target2, amp, 1);  // find floor of lpcd_amp_target1
-                if (amp_srch_rlt2 != 0)
-                {
-                    lpcd_cfg.amp = (amp_srch_rlt1 + amp_srch_rlt2) / 2;
-                    return 0;
-                }
-            }
-          
-            if ((lpcd_cfg.thd_idx > 0) && (amp_srch_rlt2 == 0))                       // lpcd_amp_target2 can not met at max_amp
-            {
-                amp = lpcd_cfg.amp;
-                lpcd_cfg.thd_idx--;
-          
-                write_reg(0x3f, 0x01);
-                for (i = 0; i < 8; i++)
-                {
-                    write_reg(0x5b+i, lut[lpcd_cfg.thd_idx+i]);
-                }
-                write_reg(0x3f, 0x00);
-            }
-            else if (((lpcd_cfg.thd_idx+7) < (INDEX_NUM-1)) && (amp_srch_rlt1 == 0))  // lpcd_amp_target1 can not met at min_amp
-            {
-                amp = lpcd_cfg.amp;
-                lpcd_cfg.thd_idx++;
-          
-                write_reg(0x3f, 0x01);
-                for (i = 0; i < 8; i++)
-                {
-                    write_reg(0x5b+i, lut[lpcd_cfg.thd_idx+i]);
-                }
-                write_reg(0x3f, 0x00);
-            }
-            else
-                return -1;
-        }
+        printf("lpcd_cfg.idx[%d]: %x\n", i, lpcd_cfg.idx[i]);
     }
 
-    return -1;
+    return 0;
 }
 
-unsigned char lpcd_amp_search(unsigned char lpcd_amp_target, unsigned char amp, unsigned char dir)
+unsigned char lpcd_amp_search_floor(unsigned char lpcd_amp_target, unsigned char amp_low, unsigned char amp_high)
 {
+    unsigned char cur_amp;
     unsigned char max_amp;
     unsigned char min_amp;
-    unsigned char cur_amp;
     unsigned char lpcd_amp_rlt;
+    int i;
 
-    max_amp = dir ? lpcd_cfg.max_amp : amp;
-    min_amp = dir ? amp : lpcd_cfg.min_amp;
-
-    lpcd_amp_rlt = lpcd_amp_test(max_amp);
-    printf("lpcd_amp_search: idx: %0.2d, amp: %0.2x, lpcd_amp_rlt: %x\n", lpcd_cfg.thd_idx, max_amp, lpcd_amp_rlt);
-    if (lpcd_amp_rlt > lpcd_amp_target)     // max_amp too small
-        return 0;
-
-    lpcd_amp_rlt = lpcd_amp_test(min_amp);
-    printf("lpcd_amp_search: idx: %0.2d, amp: %0.2x, lpcd_amp_rlt: %x\n", lpcd_cfg.thd_idx, min_amp, lpcd_amp_rlt);
-    if (lpcd_amp_rlt < lpcd_amp_target)     // min_amp too large
-        return 0;
+    max_amp = amp_high;
+    min_amp = amp_low;
 
     while (1)
     {
         cur_amp = (max_amp + min_amp) / 2;
         lpcd_amp_rlt = lpcd_amp_test(cur_amp);
-        printf("lpcd_amp_search: idx: %0.2d, amp: %0.2x, lpcd_amp_rlt: %x\n", lpcd_cfg.thd_idx, cur_amp, lpcd_amp_rlt);
-        if ((cur_amp == max_amp) || (cur_amp == min_amp))
-            return cur_amp;
-        else if (lpcd_amp_rlt > lpcd_amp_target) // cur_amp smaller than target_amp
+        LPCD_AMP_TEST_INFO("lpcd_amp_search_floor", cur_amp, lpcd_amp_rlt)
+
+        if (lpcd_amp_rlt > lpcd_amp_target)
             min_amp = cur_amp;
-        else if (lpcd_amp_rlt < lpcd_amp_target)
+        else if (lpcd_amp_rlt == lpcd_amp_target)
             max_amp = cur_amp;
         else
-            return cur_amp;
+            return 0;
+
+        if ((max_amp - min_amp) <= 1)
+            return max_amp;
     }
 }
 
-unsigned char lpcd_amp_search_floor(unsigned char lpcd_amp_target, unsigned char amp, unsigned char dir)
+unsigned char lpcd_amp_search_ceil(unsigned char lpcd_amp_target, unsigned char amp_low, unsigned char amp_high)
 {
     unsigned char cur_amp;
+    unsigned char max_amp;
+    unsigned char min_amp;
     unsigned char lpcd_amp_rlt;
+    int i;
 
-    cur_amp = lpcd_amp_search(lpcd_amp_target, amp, dir);
-    if (cur_amp == 0)
-        return 0;
+    max_amp = amp_high;
+    min_amp = amp_low;
 
     while (1)
     {
-        if (cur_amp == lpcd_cfg.min_amp)  // sometimes floor and ceil can not be found within
-                                          // a single threshold, so when cur_amp meet max_amp
-                                          // or min_amp, stop searching.
-                                          // this may not lead to the best result, but it won't
-                                          // fall into a dead lock
-            return cur_amp;
+        cur_amp = (max_amp + min_amp) / 2;
+        lpcd_amp_rlt = lpcd_amp_test(cur_amp);
+        LPCD_AMP_TEST_INFO("lpcd_amp_search_ceil", cur_amp, lpcd_amp_rlt)
+
+        if (lpcd_amp_rlt < lpcd_amp_target)
+            max_amp = cur_amp;
+        else if (lpcd_amp_rlt == lpcd_amp_target)
+            min_amp = cur_amp;
         else
-        {
-            while (cur_amp >= (lpcd_cfg.min_amp + SRCH_STEP))
-            {
-                cur_amp -= SRCH_STEP;
+            return 0;
 
-                lpcd_amp_rlt = lpcd_amp_test(cur_amp);
-                printf("lpcd_amp_search_floor: idx: %0.2d, amp: %0.2x, lpcd_amp_rlt: %x\n", lpcd_cfg.thd_idx, cur_amp, lpcd_amp_rlt);
-
-                if (lpcd_amp_rlt != lpcd_amp_target)
-                {
-                    while (1)
-                    {
-                        cur_amp++;
-
-                        lpcd_amp_rlt = lpcd_amp_test(cur_amp);
-                        printf("lpcd_amp_search_floor: idx: %0.2d, amp: %0.2x, lpcd_amp_rlt: %x\n", lpcd_cfg.thd_idx, cur_amp, lpcd_amp_rlt);
-
-                        if (cur_amp == lpcd_cfg.max_amp)
-                            return cur_amp;
-                        else if (lpcd_amp_rlt == lpcd_amp_target)
-                            return cur_amp;
-                    }
-                }
-            }
-
-            while (cur_amp > lpcd_cfg.min_amp)
-            {
-                cur_amp--;
-
-                lpcd_amp_rlt = lpcd_amp_test(cur_amp);
-                printf("lpcd_amp_search_floor: idx: %0.2d, amp: %0.2x, lpcd_amp_rlt: %x\n", lpcd_cfg.thd_idx, cur_amp, lpcd_amp_rlt);
-                if (lpcd_amp_rlt != lpcd_amp_target)
-                {
-                    return (cur_amp + 1);
-                }
-            }
-        }
-    }
-}
-
-unsigned char lpcd_amp_search_ceil(unsigned char lpcd_amp_target, unsigned char amp, unsigned char dir)
-{
-    unsigned char cur_amp;
-    unsigned char lpcd_amp_rlt;
-
-    cur_amp = lpcd_amp_search(lpcd_amp_target, amp, dir);
-    if (cur_amp == 0)
-        return 0;
-
-    while (1)
-    {
-        if (cur_amp == lpcd_cfg.max_amp)  // sometimes floor and ceil can not be found within
-                                          // a single threshold, so when cur_amp meet max_amp
-                                          // or min_amp, stop searching.
-                                          // this may not lead to the best result, but it won't
-                                          // fall into a dead lock
-            return cur_amp;
-        else
-        {
-            while (cur_amp <= (lpcd_cfg.max_amp - SRCH_STEP))
-            {
-                cur_amp += SRCH_STEP;
-
-                lpcd_amp_rlt = lpcd_amp_test(cur_amp);
-                printf("lpcd_amp_search_ceil: idx: %0.2d, amp: %0.2x, lpcd_amp_rlt: %x\n", lpcd_cfg.thd_idx, cur_amp, lpcd_amp_rlt);
-
-                if (lpcd_amp_rlt != lpcd_amp_target)
-                {
-                    while (1)
-                    {
-                        cur_amp--;
-
-                        lpcd_amp_rlt = lpcd_amp_test(cur_amp);
-                        printf("lpcd_amp_search_ceil: idx: %0.2d, amp: %0.2x, lpcd_amp_rlt: %x\n", lpcd_cfg.thd_idx, cur_amp, lpcd_amp_rlt);
-
-                        if (cur_amp == lpcd_cfg.min_amp)
-                            return cur_amp;
-                        else if (lpcd_amp_rlt == lpcd_amp_target)
-                            return cur_amp;
-                    }
-                }
-            }
-
-            while (cur_amp < lpcd_cfg.max_amp)
-            {
-                cur_amp++;
-
-                lpcd_amp_rlt = lpcd_amp_test(cur_amp);
-                printf("lpcd_amp_search_ceil: idx: %0.2d, amp: %0.2x, lpcd_amp_rlt: %x\n", lpcd_cfg.thd_idx, cur_amp, lpcd_amp_rlt);
-                if (lpcd_amp_rlt != lpcd_amp_target)
-                {
-                    return (cur_amp - 1);
-                }
-            }
-        }
+        if ((max_amp - min_amp) <= 1)
+            return min_amp;
     }
 }
