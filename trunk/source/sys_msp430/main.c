@@ -110,18 +110,22 @@ void main( void )
 
     osc_calib();
     
-    for (i = 0; i < 8; i++)
+    for (i = 0; i < 4; i++)
     {
-        lpcd_cfg.idx[i] = i;
+        lpcd_cfg.idx[i] = 0;
+    }
+    for (; i < 8; i++)
+    {
+        lpcd_cfg.idx[i] = 1;
     }
     lpcd_cfg.t1 = 0x12;
-    lpcd_cfg.sense = 2;
+    lpcd_cfg.sense = 3;
     lpcd_cfg.dc_shift_det_en = 1;
     lpcd_cfg.default_amp = 0x20;
     lpcd_cfg.amp = 0x20;
     lpcd_cfg.min_amp = 0x0d;
     lpcd_cfg.max_amp = 0x3f;
-    lpcd_cfg.phase_offset = 4;
+    lpcd_cfg.phase_offset = 5;
     lpcd_init();
     
     upshift_det_cnt = 0;
@@ -170,6 +174,10 @@ void main( void )
                 if (wait_cnt == 500000) {
                     wait_cnt = 0;
                     printf(".");
+                    if (read_reg(0x01) != 0x10)
+                    {
+                        printf("NOT IN LPCD STATE\n");
+                    }
 #ifdef LPCD_DEBUG
                     write_reg(0x01,0x00);
                     delay_1ms(1);
