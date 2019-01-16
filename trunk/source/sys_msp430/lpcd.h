@@ -14,6 +14,7 @@
  *@    rpliu        20181225   V1.0.0       Initial Version
  *@    rpliu        20190110   V1.0.1       add phase auto calibration
  *@    rpliu        20190115   V2.0.0       new lpcd adjust algorithm
+ *@    rpliu        20190116   V3.0.0       rewrite lpcd adjust algorithm again
 
 *************************************************************
 */
@@ -76,16 +77,18 @@ unsigned char lpcd_amp_search_ceil(unsigned char lpcd_amp_target, unsigned char 
 #define RELEASE_SPI_CLK_LOW   \
     P5SEL = 0xE;
 
-//#define LPCD_AMP_TEST_INFO(str, amp_info, rlt_info)  \
-//    printf(str);                                                  \
-//    printf("\n");                                                 \
-//    for (i = 0; i < 8; i++)                                       \
-//    {                                                             \
-//        printf("idx[%d]: %0.2d\t", i, lpcd_cfg.idx[i]);           \
-//    }                                                             \
-//    printf("\namp: %0.2x, phase: %0.2x, lpcd_amp_rlt: %x\n", amp_info, lpcd_cfg.phase, rlt_info);
-
+#if 0
+#define LPCD_AMP_TEST_INFO(str, amp_info, rlt_info)  \
+    printf(str);                                                  \
+    printf("\n");                                                 \
+    for (i = 0; i < 8; i++)                                       \
+    {                                                             \
+        printf("idx[%d]: %0.2d\t", i, lpcd_cfg.idx[i]);           \
+    }                                                             \
+    printf("\namp: %0.2x, phase: %0.2x, lpcd_amp_rlt: %x\n", amp_info, lpcd_cfg.phase, rlt_info);
+#else
 #define LPCD_AMP_TEST_INFO(str, amp_info, rlt_info)
+#endif
 
 #endif
 // endfile

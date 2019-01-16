@@ -336,6 +336,10 @@
           <name>ICC430</name>
           <file> 18 33 54 55 40 58 60 36 70 35 66 25 78 73 71 49 16 52 19</file>
         </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 18 33 54 55 58 60 36 70 35 66 25 78 73 71 49 16 52 19</file>
+        </tool>
       </inputs>
     </file>
     <file>
