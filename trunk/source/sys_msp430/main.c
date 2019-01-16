@@ -110,13 +110,17 @@ void main( void )
 
     osc_calib();
     
-    lpcd_cfg.thd_idx = 12;
+    for (i = 0; i < 8; i++)
+    {
+        lpcd_cfg.idx[i] = i;
+    }
     lpcd_cfg.t1 = 0x12;
-    lpcd_cfg.sense = 3;
+    lpcd_cfg.sense = 2;
     lpcd_cfg.dc_shift_det_en = 1;
+    lpcd_cfg.default_amp = 0x20;
     lpcd_cfg.amp = 0x20;
     lpcd_cfg.min_amp = 0x0d;
-    lpcd_cfg.max_amp = 0x30;
+    lpcd_cfg.max_amp = 0x3f;
     lpcd_cfg.phase_offset = 4;
     lpcd_init();
     
@@ -181,7 +185,7 @@ void main( void )
                     }
                     write_reg(0x3f,0x00);
                     write_reg(0x01,0x10);
-                    printf("idx: %0.2d, amp: %0.2x, lpcd_amp_rlt: %x\n", lpcd_cfg.thd_idx, lpcd_cfg.amp, lpcd_amp_rlt);
+                    LPCD_AMP_TEST_INFO("main", lpcd_cfg.amp, lpcd_amp_rlt)
                     printf("\n");
 #endif
 

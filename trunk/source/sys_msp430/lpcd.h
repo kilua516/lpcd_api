@@ -37,11 +37,12 @@ typedef struct
     unsigned char dc_shift_det_en;
     unsigned char phase;
     unsigned char phase_offset;
+    unsigned char default_amp;
     unsigned char amp;
     unsigned char max_amp;
     unsigned char min_amp;
     unsigned char sense;
-    unsigned char thd_idx;
+    unsigned char idx[8];
 } lpcd_cfg_t;
 
 extern lpcd_cfg_t lpcd_cfg;
@@ -72,9 +73,8 @@ void lpcd_exit();
 
 int lpcd_sen_adj();
 
-unsigned char lpcd_amp_search(unsigned char lpcd_amp_target, unsigned char amp, unsigned char dir);
-unsigned char lpcd_amp_search_floor(unsigned char lpcd_amp_target, unsigned char amp, unsigned char dir);
-unsigned char lpcd_amp_search_ceil(unsigned char lpcd_amp_target, unsigned char amp, unsigned char dir);
+unsigned char lpcd_amp_search_floor(unsigned char lpcd_amp_target, unsigned char amp_low, unsigned char amp_high);
+unsigned char lpcd_amp_search_ceil(unsigned char lpcd_amp_target, unsigned char amp_low, unsigned char amp_high);
 
 #define ASSERT_SPI_CLK_LOW    \
     P5DIR |= BIT3;            \
@@ -83,6 +83,15 @@ unsigned char lpcd_amp_search_ceil(unsigned char lpcd_amp_target, unsigned char 
 
 #define RELEASE_SPI_CLK_LOW   \
     P5SEL = 0xE;
+
+#define LPCD_AMP_TEST_INFO(str, amp_info, rlt_info)  \
+    printf(str);                                                  \
+    printf("\n");                                                 \
+    for (i = 0; i < 8; i++)                                       \
+    {                                                             \
+        printf("idx[%d]: %0.2d\t", i, lpcd_cfg.idx[i]);           \
+    }                                                             \
+    printf("\namp: %0.2x, lpcd_amp_rlt: %x\n", amp_info, rlt_info);
 
 #endif
 // endfile
