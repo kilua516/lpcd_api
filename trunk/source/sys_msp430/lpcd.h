@@ -51,17 +51,9 @@ extern double voltage[];
 
 extern unsigned char lut[];
 
-void lpcd_find_edge(int lower_bound, int upper_bound, int *lower_edge);
-
-void do_lpcd_calib(int upper_bound, int lower_bound, uchar *calib_rlt, uchar *idx);
-
 unsigned char lpcd_amp_test(unsigned char amp);
 
 void osc_calib();
-
-void lpcd_calib(unsigned char *idx);
-
-void lpcd_calib_callback(unsigned char proc);
 
 unsigned char phase_calib();
 
@@ -84,16 +76,16 @@ unsigned char lpcd_amp_search_ceil(unsigned char lpcd_amp_target, unsigned char 
 #define RELEASE_SPI_CLK_LOW   \
     P5SEL = 0xE;
 
-#define LPCD_AMP_TEST_INFO(str, amp_info, rlt_info)  \
-    printf(str);                                                  \
-    printf("\n");                                                 \
-    for (i = 0; i < 8; i++)                                       \
-    {                                                             \
-        printf("idx[%d]: %0.2d\t", i, lpcd_cfg.idx[i]);           \
-    }                                                             \
-    printf("\namp: %0.2x, phase: %0.2x, lpcd_amp_rlt: %x\n", amp_info, lpcd_cfg.phase, rlt_info);
+//#define LPCD_AMP_TEST_INFO(str, amp_info, rlt_info)  \
+//    printf(str);                                                  \
+//    printf("\n");                                                 \
+//    for (i = 0; i < 8; i++)                                       \
+//    {                                                             \
+//        printf("idx[%d]: %0.2d\t", i, lpcd_cfg.idx[i]);           \
+//    }                                                             \
+//    printf("\namp: %0.2x, phase: %0.2x, lpcd_amp_rlt: %x\n", amp_info, lpcd_cfg.phase, rlt_info);
 
-//#define LPCD_AMP_TEST_INFO(str, amp_info, rlt_info)
+#define LPCD_AMP_TEST_INFO(str, amp_info, rlt_info)
 
 #endif
 // endfile
