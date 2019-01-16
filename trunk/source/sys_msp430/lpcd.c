@@ -573,11 +573,26 @@ unsigned char phase_calib()
     write_reg(ModGsPReg, reg_29);
 
     if (amp[0] < amp[1])
-        return (reg_66 ^ 0xc0);
+        ph = (reg_66 ^ 0xc0);
     else if (amp[1] > amp[0])
-        return (reg_66 ^ 0x80);
+        ph = (reg_66 ^ 0x80);
     else
         return 0xff;
+
+    if (lpcd_cfg.phase_offset >= 0)
+    {
+        if ((ph & 0x3f) > (0x3f - lpcd_cfg.phase_offset))
+            return ((ph & 0xc0) | 0x3f);
+        else
+            return ((ph & 0xc0) | ((ph & 0x3f) + lpcd_cfg.phase_offset));
+    }
+    else
+    {
+        if ((ph & 0x3f) < (0x00 - lpcd_cfg.phase_offset))
+            return ((ph & 0xc0) | 0x00);
+        else
+            return ((ph & 0xc0) | ((ph & 0x3f) + lpcd_cfg.phase_offset));
+    }
 }
 
 void lpcd_init()
@@ -588,7 +603,6 @@ void lpcd_init()
     volatile unsigned char temp_value;
 #endif
     lpcd_cfg.phase = phase_calib();
-    lpcd_cfg.phase += lpcd_cfg.phase_offset;
 //    printf("lpcd_cfg.phase: %x\n", lpcd_cfg.phase);
 
     write_reg(0x3f,0x01);
@@ -698,14 +712,24 @@ void lpcd_exit()
 int lpcd_sen_adj()
 {
     const unsigned char lpcd_amp_thd = 0xf0;
+    lpcd_cfg_t lpcd_cfg_bk;
     char lpcd_idx_adj_val;
     unsigned char amp_srch_rlt1;
     unsigned char amp_srch_rlt2;
     unsigned char lpcd_amp_rlt;
+    unsigned char adj_fail;
     unsigned char i;
 
+    adj_fail = 1;
+
+    // backup original lpcd_cfg
+    lpcd_cfg_bk = lpcd_cfg;
+    for (i = 0; i < 8; i++)
+    {
+        lpcd_cfg_bk.idx[i] = lpcd_cfg.idx[i];
+    }
+
     lpcd_cfg.phase = phase_calib();
-    lpcd_cfg.phase += lpcd_cfg.phase_offset;
 
     // index expand
     switch (lpcd_cfg.sense)
@@ -766,7 +790,7 @@ int lpcd_sen_adj()
             else if (lpcd_cfg.idx[0] >= 4)
                 lpcd_idx_adj_val = -4;
             else
-                return -1;
+                break;
         }
         else if (lpcd_amp_rlt == 0xfe)
         {
@@ -777,7 +801,7 @@ int lpcd_sen_adj()
             else if (lpcd_cfg.idx[0] >= 3)
                 lpcd_idx_adj_val = -3;
             else
-                return -1;
+                break;
         }
         else if (lpcd_amp_rlt == 0xfc)
         {
@@ -786,14 +810,14 @@ int lpcd_sen_adj()
             else if (lpcd_cfg.idx[0] >= 2)
                 lpcd_idx_adj_val = -2;
             else
-                return -1;
+                break;
         }
         else if (lpcd_amp_rlt == 0xf8)
         {
             if (lpcd_cfg.idx[0] >= 1)
                 lpcd_idx_adj_val = -1;
             else
-                return -1;
+                break;
         }
         else if (lpcd_amp_rlt == 0xf0)
         {
@@ -804,7 +828,7 @@ int lpcd_sen_adj()
             if ((lpcd_cfg.idx[7]) < (INDEX_NUM-1))
                 lpcd_idx_adj_val = 1;
             else
-                return -1;
+                break;
         }
         else if (lpcd_amp_rlt == 0xc0)
         {
@@ -813,7 +837,7 @@ int lpcd_sen_adj()
             else if ((lpcd_cfg.idx[7]) < (INDEX_NUM-2))
                 lpcd_idx_adj_val = 2;
             else
-                return -1;
+                break;
         }
         else if (lpcd_amp_rlt == 0x80)
         {
@@ -824,7 +848,7 @@ int lpcd_sen_adj()
             else if ((lpcd_cfg.idx[7]) < (INDEX_NUM-3))
                 lpcd_idx_adj_val = 3;
             else
-                return -1;
+                break;
         }
         else if (lpcd_amp_rlt == 0x00)
         {
@@ -835,11 +859,11 @@ int lpcd_sen_adj()
             else if ((lpcd_cfg.idx[7]) < (INDEX_NUM-4))
                 lpcd_idx_adj_val = 4;
             else
-                return -1;
+                break;
         }
         else
         {
-            return -1;
+            break;
         }
 
         // adjust idx according to previous test results
@@ -853,11 +877,9 @@ int lpcd_sen_adj()
     if (amp_srch_rlt1 != 0)
     {
         amp_srch_rlt2 = lpcd_amp_search_ceil(lpcd_amp_thd, lpcd_cfg.default_amp, lpcd_cfg.max_amp);
-        if (amp_srch_rlt2 == 0)
-            return -1;
+        if (amp_srch_rlt2 != 0)
+            adj_fail = 0;
     }
-    else
-        return -1;
 
     lpcd_cfg.amp = (amp_srch_rlt1 + amp_srch_rlt2) / 2;
 
@@ -897,6 +919,19 @@ int lpcd_sen_adj()
             break;
     }
 
+    if (adj_fail == 1)
+    {
+        printf("lpcd_sen_adj: fail\n");
+        lpcd_cfg = lpcd_cfg_bk;
+        write_reg(0x3f,0x01);
+        for (i = 0; i < 8; i++)
+        {
+            lpcd_cfg.idx[i] = lpcd_cfg_bk.idx[i];
+            write_reg(0x5b+i, lpcd_cfg.idx[i]);
+        }
+        write_reg(0x3f,0x00);
+    }
+
     printf("lpcd_info:\n");
     printf("lpcd_cfg.t1: %x\n", lpcd_cfg.t1);
     printf("lpcd_cfg.phase: %x\n", lpcd_cfg.phase);
@@ -907,7 +942,7 @@ int lpcd_sen_adj()
         printf("lpcd_cfg.idx[%d]: %x\n", i, lpcd_cfg.idx[i]);
     }
 
-    return 0;
+    return ((adj_fail == 1) ? -1 : 0);
 }
 
 unsigned char lpcd_amp_search_floor(unsigned char lpcd_amp_target, unsigned char amp_low, unsigned char amp_high)

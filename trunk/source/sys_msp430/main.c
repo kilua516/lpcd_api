@@ -115,9 +115,9 @@ void main( void )
         lpcd_cfg.idx[i] = i;
     }
     lpcd_cfg.t1 = 0x12;
-    lpcd_cfg.sense = 2;
+    lpcd_cfg.sense = 3;
     lpcd_cfg.dc_shift_det_en = 1;
-    lpcd_cfg.default_amp = 0x20;
+    lpcd_cfg.default_amp = 0x28;
     lpcd_cfg.amp = 0x20;
     lpcd_cfg.min_amp = 0x0d;
     lpcd_cfg.max_amp = 0x3f;

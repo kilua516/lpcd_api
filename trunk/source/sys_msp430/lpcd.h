@@ -36,7 +36,7 @@ typedef struct
     unsigned char t1;
     unsigned char dc_shift_det_en;
     unsigned char phase;
-    unsigned char phase_offset;
+    char phase_offset;
     unsigned char default_amp;
     unsigned char amp;
     unsigned char max_amp;
@@ -91,7 +91,9 @@ unsigned char lpcd_amp_search_ceil(unsigned char lpcd_amp_target, unsigned char 
     {                                                             \
         printf("idx[%d]: %0.2d\t", i, lpcd_cfg.idx[i]);           \
     }                                                             \
-    printf("\namp: %0.2x, lpcd_amp_rlt: %x\n", amp_info, rlt_info);
+    printf("\namp: %0.2x, phase: %0.2x, lpcd_amp_rlt: %x\n", amp_info, lpcd_cfg.phase, rlt_info);
+
+//#define LPCD_AMP_TEST_INFO(str, amp_info, rlt_info)
 
 #endif
 // endfile
