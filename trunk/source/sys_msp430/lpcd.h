@@ -16,6 +16,8 @@
  *@    rpliu        20190115   V2.0.0       new lpcd adjust algorithm
  *@    rpliu        20190116   V3.0.0       rewrite lpcd adjust algorithm again
  *@    rpliu        20190117   V3.0.1       add define for SPI operation
+ *@    rpliu        20190117   V3.0.2       replace set_bit_mask and clear_bit_mask
+                                            with macro define
 
 *************************************************************
 */
@@ -84,6 +86,12 @@ int lpcd_sen_adj();
 
 unsigned char lpcd_amp_search_floor(unsigned char lpcd_amp_target, unsigned char amp_low, unsigned char amp_high);
 unsigned char lpcd_amp_search_ceil(unsigned char lpcd_amp_target, unsigned char amp_low, unsigned char amp_high);
+
+#define SL_SET_BIT_MASK(reg, mask)  \
+    SL_WR_REG(reg, SL_RD_REG(reg) | mask)
+
+#define SL_CLR_BIT_MASK(reg, mask)  \
+    SL_WR_REG(reg, SL_RD_REG(reg) & ~mask)
 
 #if 0
 #define LPCD_AMP_TEST_INFO(str, amp_info, rlt_info)  \
