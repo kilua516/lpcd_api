@@ -18,6 +18,7 @@
  *@    rpliu        20190117   V3.0.1       add define for SPI operation
  *@    rpliu        20190117   V3.0.2       replace set_bit_mask and clear_bit_mask
                                             with macro define
+ *@    rpliu        20190117   V3.0.3       add timeout for sense adj loop
 
 *************************************************************
 */
@@ -44,6 +45,7 @@
 
 //------------------ PARAMETERS DEFINE ---------------------
 #define THD_ADJ_CNT 5
+#define ADJ_TO_TIME 300       // amp_test runs every 16ms, 300 times means about 5 seconds
 //---------------- PARAMETERS DEFINE END --------------------
 
 
