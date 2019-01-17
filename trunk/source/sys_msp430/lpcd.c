@@ -19,6 +19,7 @@
                                             replace SPI operation with macro define
  *@    rpliu        20190117   V3.0.2       replace set_bit_mask and clear_bit_mask
                                             with macro define
+ *@    rpliu        20190117   V3.0.3       add timeout for sense adj loop
 
 *************************************************************
 */
@@ -485,9 +486,8 @@ int lpcd_sen_adj()
     unsigned char amp_srch_rlt2;
     unsigned char lpcd_amp_rlt;
     unsigned char adj_fail;
+    unsigned char adj_to_cnt;
     unsigned char i;
-
-    adj_fail = 1;
 
     // backup original lpcd_cfg
     lpcd_cfg_bk = lpcd_cfg;
@@ -536,7 +536,8 @@ int lpcd_sen_adj()
     }
 
     // large step adjust threshold
-    while (1)
+    adj_to_cnt = ADJ_TO_TIME;   // adj timeout
+    while (adj_to_cnt--)
     {
         SL_WR_REG(0x3f, 0x01);
         for (i = 0; i < 8; i++)
@@ -641,50 +642,54 @@ int lpcd_sen_adj()
         }
     }
 
-    amp_srch_rlt1 = lpcd_amp_search_floor(lpcd_amp_thd, lpcd_cfg.min_amp, lpcd_cfg.default_amp);
-    if (amp_srch_rlt1 != 0)
-    {
-        amp_srch_rlt2 = lpcd_amp_search_ceil(lpcd_amp_thd, lpcd_cfg.default_amp, lpcd_cfg.max_amp);
-        if (amp_srch_rlt2 != 0)
-            adj_fail = 0;
-    }
+    adj_fail = (adj_to_cnt == 0);
 
-    lpcd_cfg.amp = (amp_srch_rlt1 + amp_srch_rlt2) / 2;
-
-    switch (lpcd_cfg.sense)
+    if (adj_fail == 0)
     {
-        case 0:
-            lpcd_cfg.idx[1] = lpcd_cfg.idx[0];
-            lpcd_cfg.idx[2] = lpcd_cfg.idx[0];
-            lpcd_cfg.idx[3] = lpcd_cfg.idx[0];
-            lpcd_cfg.idx[4] = lpcd_cfg.idx[7];
-            lpcd_cfg.idx[5] = lpcd_cfg.idx[7];
-            lpcd_cfg.idx[6] = lpcd_cfg.idx[7];
-            break;
-        case 1:
-            lpcd_cfg.idx[0] = lpcd_cfg.idx[1];
-            lpcd_cfg.idx[2] = lpcd_cfg.idx[1];
-            lpcd_cfg.idx[3] = lpcd_cfg.idx[1];
-            lpcd_cfg.idx[4] = lpcd_cfg.idx[6];
-            lpcd_cfg.idx[5] = lpcd_cfg.idx[6];
-            lpcd_cfg.idx[7] = lpcd_cfg.idx[6];
-            break;
-        case 2:
-            lpcd_cfg.idx[0] = lpcd_cfg.idx[2];
-            lpcd_cfg.idx[1] = lpcd_cfg.idx[2];
-            lpcd_cfg.idx[3] = lpcd_cfg.idx[2];
-            lpcd_cfg.idx[4] = lpcd_cfg.idx[5];
-            lpcd_cfg.idx[6] = lpcd_cfg.idx[5];
-            lpcd_cfg.idx[7] = lpcd_cfg.idx[5];
-            break;
-        default:
-            lpcd_cfg.idx[0] = lpcd_cfg.idx[3];
-            lpcd_cfg.idx[1] = lpcd_cfg.idx[3];
-            lpcd_cfg.idx[2] = lpcd_cfg.idx[3];
-            lpcd_cfg.idx[5] = lpcd_cfg.idx[4];
-            lpcd_cfg.idx[6] = lpcd_cfg.idx[4];
-            lpcd_cfg.idx[7] = lpcd_cfg.idx[4];
-            break;
+        amp_srch_rlt1 = lpcd_amp_search_floor(lpcd_amp_thd, lpcd_cfg.min_amp, lpcd_cfg.default_amp);
+        if (amp_srch_rlt1 != 0)
+        {
+            amp_srch_rlt2 = lpcd_amp_search_ceil(lpcd_amp_thd, lpcd_cfg.default_amp, lpcd_cfg.max_amp);
+            adj_fail = (amp_srch_rlt2 == 0);
+        }
+
+        lpcd_cfg.amp = (amp_srch_rlt1 + amp_srch_rlt2) / 2;
+
+        switch (lpcd_cfg.sense)
+        {
+            case 0:
+                lpcd_cfg.idx[1] = lpcd_cfg.idx[0];
+                lpcd_cfg.idx[2] = lpcd_cfg.idx[0];
+                lpcd_cfg.idx[3] = lpcd_cfg.idx[0];
+                lpcd_cfg.idx[4] = lpcd_cfg.idx[7];
+                lpcd_cfg.idx[5] = lpcd_cfg.idx[7];
+                lpcd_cfg.idx[6] = lpcd_cfg.idx[7];
+                break;
+            case 1:
+                lpcd_cfg.idx[0] = lpcd_cfg.idx[1];
+                lpcd_cfg.idx[2] = lpcd_cfg.idx[1];
+                lpcd_cfg.idx[3] = lpcd_cfg.idx[1];
+                lpcd_cfg.idx[4] = lpcd_cfg.idx[6];
+                lpcd_cfg.idx[5] = lpcd_cfg.idx[6];
+                lpcd_cfg.idx[7] = lpcd_cfg.idx[6];
+                break;
+            case 2:
+                lpcd_cfg.idx[0] = lpcd_cfg.idx[2];
+                lpcd_cfg.idx[1] = lpcd_cfg.idx[2];
+                lpcd_cfg.idx[3] = lpcd_cfg.idx[2];
+                lpcd_cfg.idx[4] = lpcd_cfg.idx[5];
+                lpcd_cfg.idx[6] = lpcd_cfg.idx[5];
+                lpcd_cfg.idx[7] = lpcd_cfg.idx[5];
+                break;
+            default:
+                lpcd_cfg.idx[0] = lpcd_cfg.idx[3];
+                lpcd_cfg.idx[1] = lpcd_cfg.idx[3];
+                lpcd_cfg.idx[2] = lpcd_cfg.idx[3];
+                lpcd_cfg.idx[5] = lpcd_cfg.idx[4];
+                lpcd_cfg.idx[6] = lpcd_cfg.idx[4];
+                lpcd_cfg.idx[7] = lpcd_cfg.idx[4];
+                break;
+        }
     }
 
     if (adj_fail == 1)
