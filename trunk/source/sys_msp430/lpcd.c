@@ -486,7 +486,7 @@ int lpcd_sen_adj()
     unsigned char amp_srch_rlt2;
     unsigned char lpcd_amp_rlt;
     unsigned char adj_fail;
-    unsigned char adj_to_cnt;
+    unsigned long adj_to_cnt;
     unsigned char i;
 
     // backup original lpcd_cfg
