@@ -15,6 +15,8 @@
  *@    rpliu        20190110   V1.0.1       add phase auto calibration
  *@    rpliu        20190115   V2.0.0       new lpcd adjust algorithm
  *@    rpliu        20190116   V3.0.0       rewrite lpcd adjust algorithm again
+ *@    rpliu        20190117   V3.0.1       little change on lpcd flow
+                                            replace SPI operation with macro define
 
 *************************************************************
 */
@@ -133,74 +135,71 @@ unsigned char lpcd_amp_test(unsigned char amp)
     unsigned char recv_data;
     unsigned char i;
 
-    reg_14 = read_reg(0x14);
-    reg_15 = read_reg(0x15);
-    reg_28 = read_reg(0x28);
-    reg_29 = read_reg(0x29);
-    write_reg(TxASKReg, 0x00);  // Force100ASK = 0
-    write_reg(TxControlReg, 0x80);
-    write_reg(CWGsPReg, amp ^ 0x28);
-    write_reg(ModGsPReg, amp ^ 0x28);
+    reg_14 = SL_RD_REG(0x14);
+    reg_15 = SL_RD_REG(0x15);
+    reg_28 = SL_RD_REG(0x28);
+    reg_29 = SL_RD_REG(0x29);
+    SL_WR_REG(TxASKReg, 0x00);  // Force100ASK = 0
+    SL_WR_REG(TxControlReg, 0x80);
+    SL_WR_REG(CWGsPReg, amp ^ 0x28);
+    SL_WR_REG(ModGsPReg, amp ^ 0x28);
 
-    write_reg(0x3f,0x01);
+    SL_WR_REG(0x3f,0x01);
 
-    reg_65 = read_reg(0x65);
-    reg_66 = read_reg(0x66);
-    write_reg(0x65, 0x00);
-    write_reg(0x66, lpcd_cfg.phase);
+    reg_65 = SL_RD_REG(0x65);
+    reg_66 = SL_RD_REG(0x66);
+    SL_WR_REG(0x65, 0x00);
+    SL_WR_REG(0x66, lpcd_cfg.phase);
 
-    write_reg(0x54,0x81);         // lpcd calib mode
+    SL_WR_REG(0x54,0x81);         // lpcd calib mode
 
-    write_reg(0x51,0x00);         // T1
+    SL_WR_REG(0x51,0x00);         // T1
 
-    write_reg(0x3f,0x00);
-    write_reg(0x05,0x20);
-    write_reg(0x01,0x10);         // enter lpcd calib mode
+    SL_WR_REG(0x3f,0x00);
+    SL_WR_REG(0x05,0x20);
+    SL_WR_REG(0x01,0x10);         // enter lpcd calib mode
 
     // wait lpcd calib done
     do
     {
-        recv_data = read_reg(0x05);
+        recv_data = SL_RD_REG(0x05);
     }
     while ((recv_data & 0x20) != 0x20);
 
-    write_reg(0x01,0x00);
+    SL_WR_REG(0x01,0x00);
 
     // wait wakeup done
     do
     {
-        write_reg(0x3f,0x01);
+        SL_WR_REG(0x3f,0x01);
     }
-    while (read_reg(0x3f) == 0x00);
-    write_reg(0x3f,0x00);
+    while (SL_RD_REG(0x3f) == 0x00);
+    SL_WR_REG(0x3f,0x00);
 
-    write_reg(0x05,0x20);
-    write_reg(0x3f,0x01);
+    SL_WR_REG(0x05,0x20);
+    SL_WR_REG(0x3f,0x01);
 
     calib_rlt = 0;
     for (i = 0; i < 8; i++)
     {
         calib_rlt >>= 1;
-        calib_rlt |= (read_reg(0x5b+i) & 0x80);
-//      printf("reg_%x: %x\n", 0x5b+i, read_reg(0x5b+i));
+        calib_rlt |= (SL_RD_REG(0x5b+i) & 0x80);
+//      printf("reg_%x: %x\n", 0x5b+i, SL_RD_REG(0x5b+i));
     }
-    write_reg(0x3f,0x00);
+    SL_WR_REG(0x3f,0x00);
 
-    write_reg(0x3f,0x01);
-    write_reg(0x65,reg_65);
-    write_reg(0x66,reg_66);
-    write_reg(0x51,lpcd_cfg.t1);
+    SL_WR_REG(0x3f,0x01);
+    SL_WR_REG(0x65,reg_65);
+    SL_WR_REG(0x66,reg_66);
+    SL_WR_REG(0x51,lpcd_cfg.t1);
 
-    if (lpcd_cfg.dc_shift_det_en == 0)
-        write_reg(0x54,0x82);
-    else
-        write_reg(0x54,0x92);
+    SL_WR_REG(0x54,0x92);
 
-    write_reg(0x3f,0x00);
-    write_reg(TxASKReg, reg_15);
-    write_reg(TxControlReg, reg_14 | 0x03);
-    write_reg(ModGsPReg, reg_29);
-    write_reg(CWGsPReg, reg_28);
+    SL_WR_REG(0x3f,0x00);
+    SL_WR_REG(TxASKReg, reg_15);
+    SL_WR_REG(TxControlReg, reg_14 | 0x03);
+    SL_WR_REG(ModGsPReg, reg_29);
+    SL_WR_REG(CWGsPReg, reg_28);
 
     found_1 = 0;
     calib_rlt_filt = calib_rlt;
@@ -212,18 +211,19 @@ unsigned char lpcd_amp_test(unsigned char amp)
             found_1 = 1;
     }
 
-    if (calib_rlt != calib_rlt_filt)
-    {
-        printf("lpcd_amp_test: result been filtered, original result is %x\n", calib_rlt);
-    }
+//  if (calib_rlt != calib_rlt_filt)
+//  {
+//      printf("lpcd_amp_test: result been filtered, original result is %x\n", calib_rlt);
+//  }
 
     return calib_rlt_filt;
 }
 
 void osc_calib()
 {
-    write_reg(0x01,0x06);
-    delay_1ms(1);
+    SL_WR_REG(0x01,0x06);
+    SL_WR_REG(0x3f,0x01);
+    while (!(SL_RD_REG(0x4e) & 0x80));
 }
 
 unsigned char phase_calib()
@@ -241,30 +241,30 @@ unsigned char phase_calib()
     unsigned char amp[2];
     unsigned char i;
 
-    write_reg(0x3f,0x00);
+    SL_WR_REG(0x3f,0x00);
 
-    reg_14 = read_reg(TxControlReg);
-    reg_15 = read_reg(TxASKReg);
-    reg_29 = read_reg(ModGsPReg);
+    reg_14 = SL_RD_REG(TxControlReg);
+    reg_15 = SL_RD_REG(TxASKReg);
+    reg_29 = SL_RD_REG(ModGsPReg);
 
-    write_reg(TxASKReg, 0x00);  // Force100ASK = 0
-    write_reg(TxControlReg, 0x80);
-    write_reg(ModGsPReg, read_reg(CWGsPReg));
+    SL_WR_REG(TxASKReg, 0x00);  // Force100ASK = 0
+    SL_WR_REG(TxControlReg, 0x80);
+    SL_WR_REG(ModGsPReg, SL_RD_REG(CWGsPReg));
 
-    write_reg(0x3f,0x01);
+    SL_WR_REG(0x3f,0x01);
 
-    write_reg(0x54,0x81);       // lpcd calib mode
+    SL_WR_REG(0x54,0x81);       // lpcd calib mode
 
-    write_reg(0x51,0x00);   // T1
-    write_reg(0x52,0x1f);   // T2 = 0x1f
-    write_reg(0x53,0xa3);   // T3 = 0x5 & Twait = 0x3
+    SL_WR_REG(0x51,0x00);   // T1
+    SL_WR_REG(0x52,0x1f);   // T2 = 0x1f
+    SL_WR_REG(0x53,0xa3);   // T3 = 0x5 & Twait = 0x3
 
-    reg_65 = read_reg(0x65);
-    reg_66 = read_reg(0x66);
+    reg_65 = SL_RD_REG(0x65);
+    reg_66 = SL_RD_REG(0x66);
 
 //  printf("auto delay phase: %x\n", reg_66);
 
-    write_reg(0x65,0x00);   // disable auto phase
+    SL_WR_REG(0x65,0x00);   // disable auto phase
 
     for (i = 0; i < 8; i++)
     {
@@ -274,50 +274,50 @@ unsigned char phase_calib()
     // set threshold
     for (i = 0; i < 8; i++)
     {
-        write_reg(0x5b+i, lut[idx[i]]);
+        SL_WR_REG(0x5b+i, lut[idx[i]]);
 //      printf("write %x to reg_%x\n", lut[idx[i]], 0x5b+i);
     }
 
     for (ph = 0; ph < 2; ph++)
     {
-        write_reg(0x3f,0x01);
+        SL_WR_REG(0x3f,0x01);
 
         ph_mask = (ph == 0) ? 0x80 : 0xc0;
-        write_reg(0x66,reg_66 ^ ph_mask);   // set phase
+        SL_WR_REG(0x66,reg_66 ^ ph_mask);   // set phase
 
-        write_reg(0x3f,0x00);
-        write_reg(0x05,0x20);
-        write_reg(0x01,0x10);         // enter lpcd calib mode
+        SL_WR_REG(0x3f,0x00);
+        SL_WR_REG(0x05,0x20);
+        SL_WR_REG(0x01,0x10);         // enter lpcd calib mode
 
         // wait lpcd calib done
         do
         {
-            recv_data = read_reg(0x05);
+            recv_data = SL_RD_REG(0x05);
         }
         while ((recv_data & 0x20) != 0x20);
 
-        write_reg(0x01,0x00);
+        SL_WR_REG(0x01,0x00);
 
         // wait wakeup done
         do
         {
-            write_reg(0x3f,0x01);
+            SL_WR_REG(0x3f,0x01);
         }
-        while (read_reg(0x3f) == 0x00);
-        write_reg(0x3f,0x00);
+        while (SL_RD_REG(0x3f) == 0x00);
+        SL_WR_REG(0x3f,0x00);
 
-        write_reg(0x05,0x20);
-        write_reg(0x3f,0x01);
+        SL_WR_REG(0x05,0x20);
+        SL_WR_REG(0x3f,0x01);
 
 //        for (i = 0; i < 8; i++)
 //        {
-//            calib_rlt = read_reg(0x5b+i) & 0x80;
-//            printf("reg:%x, calib_rlt[%d]: %d\n", read_reg(0x5b+i), i, calib_rlt >> 7);
+//            calib_rlt = SL_RD_REG(0x5b+i) & 0x80;
+//            printf("reg:%x, calib_rlt[%d]: %d\n", SL_RD_REG(0x5b+i), i, calib_rlt >> 7);
 //        }
 
         for (i = 0; i < 8; i++)
         {
-            calib_rlt = read_reg(0x5b+i) & 0x80;
+            calib_rlt = SL_RD_REG(0x5b+i) & 0x80;
             if (calib_rlt != 0)
             {
                 break;
@@ -327,14 +327,14 @@ unsigned char phase_calib()
         amp[ph] = i;
     }
 
-    write_reg(0x3f,0x01);
-    write_reg(0x65,reg_65);
-    write_reg(0x66,reg_66);
+    SL_WR_REG(0x3f,0x01);
+    SL_WR_REG(0x65,reg_65);
+    SL_WR_REG(0x66,reg_66);
 
-    write_reg(0x3f,0x00);
-    write_reg(TxASKReg, reg_15);
-    write_reg(TxControlReg, reg_14 | 0x03);
-    write_reg(ModGsPReg, reg_29);
+    SL_WR_REG(0x3f,0x00);
+    SL_WR_REG(TxASKReg, reg_15);
+    SL_WR_REG(TxControlReg, reg_14 | 0x03);
+    SL_WR_REG(ModGsPReg, reg_29);
 
     if (amp[0] < amp[1])
         ph = (reg_66 ^ 0xc0);
@@ -366,37 +366,36 @@ void lpcd_init()
 #ifdef LPCD_DEBUG
     volatile unsigned char temp_value;
 #endif
+    osc_calib();
+
     lpcd_cfg.phase = phase_calib();
 //    printf("lpcd_cfg.phase: %x\n", lpcd_cfg.phase);
 
-    write_reg(0x3f,0x01);
+    SL_WR_REG(0x3f,0x01);
 
-    if (lpcd_cfg.dc_shift_det_en == 0)
-        write_reg(0x54,0x82);
-    else
-        write_reg(0x54,0x92);
+    SL_WR_REG(0x54,0x92);
 
-    write_reg(0x51,lpcd_cfg.t1);        // T1
+    SL_WR_REG(0x51,lpcd_cfg.t1);        // T1
 #ifdef LPCD_DEBUG    
-    temp_value = read_reg(0x51);
+    temp_value = SL_RD_REG(0x51);
     printf("0x51: %x\r\n",temp_value);
 #endif
 
-    write_reg(0x52,0x1f);  // T2 = 0x1f
+    SL_WR_REG(0x52,0x1f);  // T2 = 0x1f
 #ifdef LPCD_DEBUG    
-    temp_value = read_reg(0x52);
+    temp_value = SL_RD_REG(0x52);
     printf("0x52: %x\r\n",temp_value);
 #endif
 
-    write_reg(0x53,0xa3);  // T3 = 0x5 & Twait = 0x3
+    SL_WR_REG(0x53,0xa3);  // T3 = 0x5 & Twait = 0x3
 #ifdef LPCD_DEBUG    
-    temp_value = read_reg(0x53);
+    temp_value = SL_RD_REG(0x53);
     printf("0x53: %x\r\n",temp_value);
 #endif
     
     for (i = 0; i < 8; i++)
     {
-        write_reg(0x5b+i, lut[lpcd_cfg.idx[i]]);
+        SL_WR_REG(0x5b+i, lut[lpcd_cfg.idx[i]]);
 //      printf("write %x to reg_%x\n", lut[lpcd_cfg.idx[i]], 0x5b+i);
     }
 
@@ -404,45 +403,45 @@ void lpcd_init()
     printf("initial lpcd parameters:\r\n");
     for (i=0;i<8;i++)
     {
-        temp_value = read_reg(0x5b+i);
+        temp_value = SL_RD_REG(0x5b+i);
         printf("0x%0.2x: %0.2x\r\n",0x5b+i, temp_value);
     }
 #endif
 
     // set card detect threshold
-    write_reg(0x55, 0x00);
-//  write_reg(0x56, 0xff);
-    write_reg(0x56, 0xf1);
+    SL_WR_REG(0x55, 0x00);
+//  SL_WR_REG(0x56, 0xff);
+    SL_WR_REG(0x56, 0xf1);
     
-    write_reg(0x3f,0x00);
+    SL_WR_REG(0x3f,0x00);
 
     // enable IRQ
-    recv_data = read_reg(0x03);
-    write_reg(0x03, recv_data | 0xA0);
+    recv_data = SL_RD_REG(0x03);
+    SL_WR_REG(0x03, recv_data | 0xA0);
 }
 
 unsigned char slm_reg_14, slm_reg_15, slm_reg_28, slm_reg_29, slm_reg_65, slm_reg_66;
 // set 0x14/0x15/0x28/0x29/0x65/0x66 and turn off rf field
 void lpcd_entry()
 {
-    write_reg(0x3f,0x00);
-    slm_reg_14 = read_reg(0x14);
-    slm_reg_15 = read_reg(0x15);
-    slm_reg_28 = read_reg(0x28);
-    slm_reg_29 = read_reg(0x29);
-    write_reg(TxASKReg, 0x00);  // Force100ASK = 0
-    write_reg(TxControlReg, 0x80);
-    write_reg(CWGsPReg, lpcd_cfg.amp ^ 0x28);
-    write_reg(ModGsPReg, lpcd_cfg.amp ^ 0x28);
-    write_reg(0x3f, 0x01);
-    slm_reg_65 = read_reg(0x65);
-    slm_reg_66 = read_reg(0x66);
-    write_reg(0x65, 0x00);
-    write_reg(0x66, lpcd_cfg.phase);
-    write_reg(0x3f, 0x00);
+    SL_WR_REG(0x3f,0x00);
+    slm_reg_14 = SL_RD_REG(0x14);
+    slm_reg_15 = SL_RD_REG(0x15);
+    slm_reg_28 = SL_RD_REG(0x28);
+    slm_reg_29 = SL_RD_REG(0x29);
+    SL_WR_REG(TxASKReg, 0x00);  // Force100ASK = 0
+    SL_WR_REG(TxControlReg, 0x80);
+    SL_WR_REG(CWGsPReg, lpcd_cfg.amp ^ 0x28);
+    SL_WR_REG(ModGsPReg, lpcd_cfg.amp ^ 0x28);
+    SL_WR_REG(0x3f, 0x01);
+    slm_reg_65 = SL_RD_REG(0x65);
+    slm_reg_66 = SL_RD_REG(0x66);
+    SL_WR_REG(0x65, 0x00);
+    SL_WR_REG(0x66, lpcd_cfg.phase);
+    SL_WR_REG(0x3f, 0x00);
     set_bit_mask(DivIEnReg, BIT7 | BIT5);// enable LPCD IRQ
 
-    write_reg(0x01,0x10);
+    SL_WR_REG(0x01,0x10);
     
 #ifndef NOT_IRQ
     ASSERT_SPI_CLK_LOW;
@@ -455,24 +454,24 @@ void lpcd_exit()
 #ifndef NOT_IRQ
     RELEASE_SPI_CLK_LOW;
 #endif
-    write_reg(0x01,0x00);
+    SL_WR_REG(0x01,0x00);
 
     // wait wakeup done
     do
     {
-        write_reg(0x3f,0x01);
+        SL_WR_REG(0x3f,0x01);
     }
-    while (read_reg(0x3f) == 0x00);
-    write_reg(0x3f,0x00);
+    while (SL_RD_REG(0x3f) == 0x00);
+    SL_WR_REG(0x3f,0x00);
     
-    write_reg(TxASKReg, slm_reg_15);
-    write_reg(TxControlReg, slm_reg_14 | 0x03);
-    write_reg(CWGsPReg, slm_reg_28);
-    write_reg(ModGsPReg, slm_reg_29);
-    write_reg(0x3f, 0x01);
-    write_reg(0x65, slm_reg_65);
-    write_reg(0x66, slm_reg_66);
-    write_reg(0x3f, 0x00);
+    SL_WR_REG(TxASKReg, slm_reg_15);
+    SL_WR_REG(TxControlReg, slm_reg_14 | 0x03);
+    SL_WR_REG(CWGsPReg, slm_reg_28);
+    SL_WR_REG(ModGsPReg, slm_reg_29);
+    SL_WR_REG(0x3f, 0x01);
+    SL_WR_REG(0x65, slm_reg_65);
+    SL_WR_REG(0x66, slm_reg_66);
+    SL_WR_REG(0x3f, 0x00);
     clear_bit_mask(DivIEnReg, BIT5);
 }
 
@@ -538,13 +537,13 @@ int lpcd_sen_adj()
     // large step adjust threshold
     while (1)
     {
-        write_reg(0x3f, 0x01);
+        SL_WR_REG(0x3f, 0x01);
         for (i = 0; i < 8; i++)
         {
-            write_reg(0x5b+i, lut[lpcd_cfg.idx[i]]);
+            SL_WR_REG(0x5b+i, lut[lpcd_cfg.idx[i]]);
 //          printf("write %x to reg_%x\n", lut[lpcd_cfg.idx[i]], 0x5b+i);
         }
-        write_reg(0x3f, 0x00);
+        SL_WR_REG(0x3f, 0x00);
 
         lpcd_amp_rlt = lpcd_amp_test(lpcd_cfg.default_amp);
         LPCD_AMP_TEST_INFO("lpcd_sen_adj", lpcd_cfg.default_amp, lpcd_amp_rlt)
@@ -689,27 +688,27 @@ int lpcd_sen_adj()
 
     if (adj_fail == 1)
     {
-        printf("lpcd_sen_adj: fail\n");
+//      printf("lpcd_sen_adj: fail\n");
         lpcd_cfg = lpcd_cfg_bk;
-        write_reg(0x3f,0x01);
+        SL_WR_REG(0x3f,0x01);
         for (i = 0; i < 8; i++)
         {
             lpcd_cfg.idx[i] = lpcd_cfg_bk.idx[i];
-            write_reg(0x5b+i, lut[lpcd_cfg.idx[i]]);
+            SL_WR_REG(0x5b+i, lut[lpcd_cfg.idx[i]]);
 //          printf("write %x to reg_%x\n", lut[lpcd_cfg.idx[i]], 0x5b+i);
         }
-        write_reg(0x3f,0x00);
+        SL_WR_REG(0x3f,0x00);
     }
 
-    printf("lpcd_info:\n");
-    printf("lpcd_cfg.t1: %x\n", lpcd_cfg.t1);
-    printf("lpcd_cfg.phase: %x\n", lpcd_cfg.phase);
-    printf("lpcd_cfg.amp: %x\n", lpcd_cfg.amp);
-    printf("lpcd_cfg.sense: %x\n", lpcd_cfg.sense);
-    for (i = 0; i < 8; i++)
-    {
-        printf("lpcd_cfg.idx[%d]: %x\n", i, lpcd_cfg.idx[i]);
-    }
+//  printf("lpcd_info:\n");
+//  printf("lpcd_cfg.t1: %x\n", lpcd_cfg.t1);
+//  printf("lpcd_cfg.phase: %x\n", lpcd_cfg.phase);
+//  printf("lpcd_cfg.amp: %x\n", lpcd_cfg.amp);
+//  printf("lpcd_cfg.sense: %x\n", lpcd_cfg.sense);
+//  for (i = 0; i < 8; i++)
+//  {
+//      printf("lpcd_cfg.idx[%d]: %x\n", i, lpcd_cfg.idx[i]);
+//  }
 
     return ((adj_fail == 1) ? -1 : 0);
 }
