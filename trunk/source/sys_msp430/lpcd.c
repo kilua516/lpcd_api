@@ -17,12 +17,13 @@
  *@    rpliu        20190116   V3.0.0       rewrite lpcd adjust algorithm again
  *@    rpliu        20190117   V3.0.1       little change on lpcd flow
                                             replace SPI operation with macro define
+ *@    rpliu        20190117   V3.0.2       replace set_bit_mask and clear_bit_mask
+                                            with macro define
 
 *************************************************************
 */
 
 #include <stdio.h>
-#include "sys_def.h"
 #include "lpcd.h"
 #include "../iso14443/sl2523.h"
 
@@ -361,7 +362,7 @@ unsigned char phase_calib()
 
 void lpcd_init()
 {
-    uint8_t recv_data;
+    unsigned char recv_data;
     int i;
 #ifdef LPCD_DEBUG
     volatile unsigned char temp_value;
@@ -439,7 +440,7 @@ void lpcd_entry()
     SL_WR_REG(0x65, 0x00);
     SL_WR_REG(0x66, lpcd_cfg.phase);
     SL_WR_REG(0x3f, 0x00);
-    set_bit_mask(DivIEnReg, BIT7 | BIT5);// enable LPCD IRQ
+    SL_SET_BIT_MASK(DivIEnReg, BIT7 | BIT5);// enable LPCD IRQ
 
     SL_WR_REG(0x01,0x10);
     
@@ -472,7 +473,7 @@ void lpcd_exit()
     SL_WR_REG(0x65, slm_reg_65);
     SL_WR_REG(0x66, slm_reg_66);
     SL_WR_REG(0x3f, 0x00);
-    clear_bit_mask(DivIEnReg, BIT5);
+    SL_CLR_BIT_MASK(DivIEnReg, BIT5);
 }
 
 int lpcd_sen_adj()
