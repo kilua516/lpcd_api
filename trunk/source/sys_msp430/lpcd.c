@@ -64,17 +64,18 @@ double voltage[] ={1.69    , // 0
                    2.656   , // 31
                    2.688   , // 32
                    2.704   , // 33
-                   2.7367  , // 34
-                   2.7633  , // 35
-                   2.7875  , // 36
-                   2.8034  , // 37
-                   2.83    , // 38
-                   2.8675  , // 39
-                   2.885   , // 40
-                   2.9075  , // 41
-                   2.9275  , // 42
-                   2.9525  , // 43
-                   2.9875  };// 44
+                   2.7234  , // 34
+                   2.7367  , // 35
+                   2.7633  , // 36
+                   2.7875  , // 37
+                   2.8034  , // 38
+                   2.83    , // 39
+                   2.8675  , // 40
+                   2.885   , // 41
+                   2.9075  , // 42
+                   2.9275  , // 43
+                   2.9525  , // 44
+                   2.9875  };// 45
 
 
 unsigned char lut[] ={0x28, // 1.69    0 
@@ -111,17 +112,18 @@ unsigned char lut[] ={0x28, // 1.69    0
                       0x2B, // 2.656   31
                       0x4B, // 2.688   32
                       0x5B, // 2.704   33
-                      0x24, // 2.7367  34
-                      0x2C, // 2.7633  35
-                      0x75, // 2.7875  36
-                      0x4C, // 2.8034  37
-                      0x5C, // 2.83    38
-                      0x35, // 2.8675  39
-                      0x05, // 2.885   40
-                      0x3D, // 2.9075  41
-                      0x5D, // 2.9275  42
-                      0x6D, // 2.9525  43
-                      0x7D};// 2.9875  44
+                      0x34, // 2.7234  34
+                      0x24, // 2.7367  35
+                      0x2C, // 2.7633  36
+                      0x75, // 2.7875  37
+                      0x4C, // 2.8034  38
+                      0x5C, // 2.83    39
+                      0x35, // 2.8675  40
+                      0x05, // 2.885   41
+                      0x3D, // 2.9075  42
+                      0x5D, // 2.9275  43
+                      0x6D, // 2.9525  44
+                      0x7D};// 2.9875  45
 
 lpcd_cfg_t lpcd_cfg;
 
@@ -414,8 +416,7 @@ void lpcd_init()
 
     // set card detect threshold
     SL_WR_REG(0x55, 0x00);
-//  SL_WR_REG(0x56, 0xff);
-    SL_WR_REG(0x56, 0xf1);
+    SL_WR_REG(0x56, 0xff);
     
     SL_WR_REG(0x3f,0x00);
 
@@ -507,33 +508,37 @@ int lpcd_sen_adj()
             lpcd_cfg.idx[1] = lpcd_cfg.idx[0]+1;
             lpcd_cfg.idx[2] = lpcd_cfg.idx[0]+2;
             lpcd_cfg.idx[3] = lpcd_cfg.idx[0]+3;
-            lpcd_cfg.idx[4] = lpcd_cfg.idx[7]-3;
-            lpcd_cfg.idx[5] = lpcd_cfg.idx[7]-2;
-            lpcd_cfg.idx[6] = lpcd_cfg.idx[7]-1;
+            lpcd_cfg.idx[4] = lpcd_cfg.idx[0]+4;
+            lpcd_cfg.idx[5] = lpcd_cfg.idx[0]+5;
+            lpcd_cfg.idx[6] = lpcd_cfg.idx[0]+6;
+            lpcd_cfg.idx[7] = lpcd_cfg.idx[0]+7;
             break;
         case 1:
             lpcd_cfg.idx[0] = lpcd_cfg.idx[1]-1;
             lpcd_cfg.idx[2] = lpcd_cfg.idx[1]+1;
             lpcd_cfg.idx[3] = lpcd_cfg.idx[1]+2;
-            lpcd_cfg.idx[4] = lpcd_cfg.idx[6]-2;
-            lpcd_cfg.idx[5] = lpcd_cfg.idx[6]-1;
-            lpcd_cfg.idx[7] = lpcd_cfg.idx[6]+1;
+            lpcd_cfg.idx[4] = lpcd_cfg.idx[1]+3;
+            lpcd_cfg.idx[5] = lpcd_cfg.idx[1]+4;
+            lpcd_cfg.idx[6] = lpcd_cfg.idx[1]+5;
+            lpcd_cfg.idx[7] = lpcd_cfg.idx[1]+6;
             break;
         case 2:
             lpcd_cfg.idx[0] = lpcd_cfg.idx[2]-2;
             lpcd_cfg.idx[1] = lpcd_cfg.idx[2]-1;
             lpcd_cfg.idx[3] = lpcd_cfg.idx[2]+1;
-            lpcd_cfg.idx[4] = lpcd_cfg.idx[5]-1;
-            lpcd_cfg.idx[6] = lpcd_cfg.idx[5]+1;
-            lpcd_cfg.idx[7] = lpcd_cfg.idx[5]+2;
+            lpcd_cfg.idx[4] = lpcd_cfg.idx[2]+2;
+            lpcd_cfg.idx[5] = lpcd_cfg.idx[2]+3;
+            lpcd_cfg.idx[6] = lpcd_cfg.idx[2]+4;
+            lpcd_cfg.idx[7] = lpcd_cfg.idx[2]+5;
             break;
         default:
             lpcd_cfg.idx[0] = lpcd_cfg.idx[3]-3;
             lpcd_cfg.idx[1] = lpcd_cfg.idx[3]-2;
             lpcd_cfg.idx[2] = lpcd_cfg.idx[3]-1;
-            lpcd_cfg.idx[5] = lpcd_cfg.idx[4]+1;
-            lpcd_cfg.idx[6] = lpcd_cfg.idx[4]+2;
-            lpcd_cfg.idx[7] = lpcd_cfg.idx[4]+3;
+            lpcd_cfg.idx[4] = lpcd_cfg.idx[3]+1;
+            lpcd_cfg.idx[5] = lpcd_cfg.idx[3]+2;
+            lpcd_cfg.idx[6] = lpcd_cfg.idx[3]+3;
+            lpcd_cfg.idx[7] = lpcd_cfg.idx[3]+4;
             break;
     }
 
@@ -702,15 +707,18 @@ int lpcd_sen_adj()
     {
 //      printf("lpcd_sen_adj: fail\n");
         lpcd_cfg = lpcd_cfg_bk;
-        SL_WR_REG(0x3f,0x01);
         for (i = 0; i < 8; i++)
         {
             lpcd_cfg.idx[i] = lpcd_cfg_bk.idx[i];
-            SL_WR_REG(0x5b+i, lut[lpcd_cfg.idx[i]]);
-//          printf("write %x to reg_%x\n", lut[lpcd_cfg.idx[i]], 0x5b+i);
         }
-        SL_WR_REG(0x3f,0x00);
     }
+
+    SL_WR_REG(0x3f,0x01);
+    for (i = 0; i < 8; i++)
+    {
+        SL_WR_REG(0x5b+i, lut[lpcd_cfg.idx[i]]);
+    }
+    SL_WR_REG(0x3f,0x00);
 
     LPCD_ADJ_INFO
 

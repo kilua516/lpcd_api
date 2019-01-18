@@ -50,7 +50,7 @@
 //---------------- PARAMETERS DEFINE END --------------------
 
 
-#define INDEX_NUM   45
+#define INDEX_NUM   46
 
 //#define LPCD_DEBUG
 
@@ -118,7 +118,7 @@ unsigned char lpcd_amp_search_ceil(unsigned char lpcd_amp_target, unsigned char 
     printf("lpcd_cfg.sense: %x\n", lpcd_cfg.sense);               \
     for (i = 0; i < 8; i++)                                       \
     {                                                             \
-        printf("lpcd_cfg.idx[%d]: %x\n", i, lpcd_cfg.idx[i]);     \
+        printf("lpcd_cfg.idx[%d]: %0.2d\n", i, lpcd_cfg.idx[i]);  \
     }
 #else
 #define LPCD_AMP_TEST_INFO(str, amp_info, rlt_info)
