@@ -22,6 +22,9 @@
  *@    rpliu        20190117   V3.0.3       add timeout for sense adj loop
  *@    rpliu        20190117   V3.0.4       fix a bug in adj_fail assignment
                                             add debug info
+ *@    rpliu        20190118   V3.0.5       add a threshold in threshold lut
+                                            change the method of expand threshold at the beginning of sense adjust flow
+                                            fix a bug for not write to threshold register when succeed
 
 *************************************************************
 */

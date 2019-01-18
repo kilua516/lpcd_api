@@ -20,6 +20,7 @@
                                             with macro define
  *@    rpliu        20190117   V3.0.3       add timeout for sense adj loop
  *@    rpliu        20190117   V3.0.4       add debug info
+ *@    rpliu        20190118   V3.0.5       add a threshold in threshold lut
 
 *************************************************************
 */
