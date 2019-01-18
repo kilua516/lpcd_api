@@ -116,28 +116,28 @@ void main( void )
         lpcd_cfg.idx[i] = 1;
     }
     lpcd_cfg.t1 = 0x12;
-    lpcd_cfg.sense = 3;
+    lpcd_cfg.sense = 2;
     lpcd_cfg.default_amp = 0x20;
     lpcd_cfg.amp = 0x20;
     lpcd_cfg.min_amp = 0x0d;
     lpcd_cfg.max_amp = 0x3f;
-    lpcd_cfg.phase_offset = 4;
+    lpcd_cfg.phase_offset = 0;
     lpcd_init();
     
     false_det_cnt = 0;
     //---------------- LPCD INITIALIZATION END -----------------
 #endif
     
-//  write_reg(0x3f,0x01);
-//  write_reg(0x68,0x03);
-//  write_reg(0x3f,0x00);
+    write_reg(0x3f,0x01);
+    write_reg(0x68,0x02);
+    write_reg(0x3f,0x00);
     
 #ifndef _ENABLE_LPCD_
     pcd_antenna_on();
     while(1)
     {
-        test_a(1);
-        test_b(1);
+//      test_a(1);
+//      test_b(1);
         test_auth();
     }
 #endif
@@ -200,6 +200,22 @@ void main( void )
                 printf("ENTER LPCD PROC!\n");
             }
         }
+
+//      lpcd_amp_rlt = 0;
+//      write_reg(0x3f,0x01);
+//      for (i = 0; i < 8; i++)
+//      {
+//          temp_buf[i] = read_reg(0x5b+i);
+//          printf("%0.2x\t",(temp_buf[i]));
+//          lpcd_amp_rlt >>= 1;
+//          lpcd_amp_rlt |= (read_reg(0x5b+i) & 0x80);
+//      }
+//      write_reg(0x3f,0x00);
+//      printf("\n");
+//      LPCD_AMP_TEST_INFO("check lpcd result", lpcd_cfg.amp, lpcd_amp_rlt)
+//
+//      lpcd_amp_rlt = lpcd_amp_test(lpcd_cfg.amp);
+//      LPCD_AMP_TEST_INFO("main", lpcd_cfg.amp, lpcd_amp_rlt)
 
         card_detect = test_a(1);
         card_detect |= test_b(1);

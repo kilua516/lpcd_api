@@ -12,7 +12,7 @@
 #ifndef MH523_H
 #define MH523_H
 
-#define NOT_IRQ
+//#define NOT_IRQ
 
 #include"TypeDefine.h" 
 #define BIT0   (1<<0)
