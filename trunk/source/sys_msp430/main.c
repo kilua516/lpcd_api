@@ -32,6 +32,8 @@
 #include "../common/Usart.h"
 #include "../iso14443/Rfid_interface.h"
 
+#define _ENABLE_LPCD_
+
 
 extern volatile u8 irq_flag_io;
 
@@ -103,6 +105,7 @@ void main( void )
     Rfid_Init();
     pcd_default_info();
 
+#ifdef _ENABLE_LPCD_
     //------------------ LPCD INITIALIZATION -------------------
     for (i = 0; i < 4; i++)
     {
@@ -123,18 +126,23 @@ void main( void )
     
     false_det_cnt = 0;
     //---------------- LPCD INITIALIZATION END -----------------
+#endif
     
 //  write_reg(0x3f,0x01);
 //  write_reg(0x68,0x03);
 //  write_reg(0x3f,0x00);
     
-//  pcd_antenna_on();
-//  while(1)
-//  {
-//      test_a(1);
-//      test_b(1);
-//  }
+#ifndef _ENABLE_LPCD_
+    pcd_antenna_on();
+    while(1)
+    {
+        test_a(1);
+        test_b(1);
+        test_auth();
+    }
+#endif
     
+#ifdef _ENABLE_LPCD_
     while (1) {
         lpcd_entry();
         printf("ENTER LPCD PROC!\n");
@@ -217,5 +225,6 @@ void main( void )
     {
         usmart_dev.scan();  // console
     }
+#endif
 }
 //endfile

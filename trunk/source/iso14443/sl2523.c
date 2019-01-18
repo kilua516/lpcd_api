@@ -393,7 +393,7 @@ char pcd_com_transceive(struct transceive_buffer *pi)
                 }
 
                 write_reg(ComIrqReg, BIT2);//在write fifo之后，再清除中断标记才可�?
-                //printf("\n8 comirq=%02bx,ien=%02bx,INT= %bd \n", read_reg(ComIrqReg), read_reg(ComIEnReg), (u8)INT_PIN);
+//                printf("\n8 comirq=%02bx,ien=%02bx,INT= %bd \n", read_reg(ComIrqReg), read_reg(ComIEnReg), (u8)INT_PIN);
                 len_rest -= len;//Rest bytes
 
                 //    printf("len_rest = %d\r\n",len_rest);
@@ -403,25 +403,33 @@ char pcd_com_transceive(struct transceive_buffer *pi)
 
                 }
             }
-            //Wait TxIRq
+
+            if (pi->mf_command != PCD_AUTHENT)
+            {
+                //Wait TxIRq
 #ifdef NOT_IRQ
                 while(INT_PIN == 0);//Wait LoAlertIRq
-     
 #else
                 while (irq_flag_io == 0);  //yht
                 irq_flag_io = 0;         
 #endif
-            val = read_reg(ComIrqReg);
+                val = read_reg(ComIrqReg);
 
-            if (val & TxIRq)
-            {
-                //printf("## pcd_com: ComIrqReg =0x%x,ComIEnReg=0x%x\r\n", read_reg(ComIrqReg), read_reg(ComIEnReg));
-                write_reg(ComIrqReg, TxIRq);
-                val = 0x7F & read_reg(FIFOLevelReg);
+//                write_reg(ComIEnReg, 0x80);
+//                write_reg(ComIrqReg, 0x7e);
+//                write_reg(DivIrqReg, 0x7e);
+//                write_reg(ComIEnReg, irq_inv |irq_en | BIT0);//使能Timer 定时器中�?        write_reg(ComIrqReg, 0x7F); //Clear INT                
+                
+                if (val & TxIRq)
+                {
+//                  printf("## pcd_com: ComIrqReg =0x%x,ComIEnReg=0x%x\r\n", read_reg(ComIrqReg), read_reg(ComIEnReg));
+                    write_reg(ComIrqReg, TxIRq);
+                    val = 0x7F & read_reg(FIFOLevelReg);
+                }
+                //    val2 = read_reg(ComIrqReg);
+
+                // printf(" INT:ien=%02x,cirq=%02x,err=%02x\r\n",read_reg(ComIEnReg), val,read_reg(ErrorReg));//XU
             }
-            //    val2 = read_reg(ComIrqReg);
-
-            // printf(" INT:ien=%02x,cirq=%02x,err=%02x\r\n",read_reg(ComIEnReg), val,read_reg(ErrorReg));//XU
         }
         if (PCD_RECEIVE == pi->mf_command)
         {
@@ -440,11 +448,11 @@ char pcd_com_transceive(struct transceive_buffer *pi)
         while(1)
         {
 #ifdef NOT_IRQ
-                while(INT_PIN == 0);//Wait LoAlertIRq
+            while(INT_PIN == 0);//Wait LoAlertIRq
      
 #else
-                while (irq_flag_io == 0);  //yht
-                irq_flag_io = 0;         
+            while (irq_flag_io == 0);  //yht
+            irq_flag_io = 0;         
 #endif
 
             val = read_reg(ComIrqReg);

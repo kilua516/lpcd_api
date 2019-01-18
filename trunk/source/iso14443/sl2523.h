@@ -12,6 +12,8 @@
 #ifndef MH523_H
 #define MH523_H
 
+#define NOT_IRQ
+
 #include"TypeDefine.h" 
 #define BIT0   (1<<0)
 #define BIT1   (1<<1)
@@ -313,6 +315,8 @@ void pcd_lpcd_start();
 void pcd_lpcd_config_start(u8 delta, u32 t_inactivity_ms, u8 skip_times,u8  t_detect_us);
 void pcd_lpcd_end();
 u8 pcd_lpcd_check();
+
+//#define NFC_DEBUG 1
 
 #endif
 
