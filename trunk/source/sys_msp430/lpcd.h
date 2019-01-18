@@ -19,6 +19,7 @@
  *@    rpliu        20190117   V3.0.2       replace set_bit_mask and clear_bit_mask
                                             with macro define
  *@    rpliu        20190117   V3.0.3       add timeout for sense adj loop
+ *@    rpliu        20190117   V3.0.4       add debug info
 
 *************************************************************
 */
@@ -104,8 +105,24 @@ unsigned char lpcd_amp_search_ceil(unsigned char lpcd_amp_target, unsigned char 
         printf("idx[%d]: %0.2d\t", i, lpcd_cfg.idx[i]);           \
     }                                                             \
     printf("\namp: %0.2x, phase: %0.2x, lpcd_amp_rlt: %x\n", amp_info, lpcd_cfg.phase, rlt_info);
+
+#define LPCD_ADJ_INFO                                             \
+    printf("lpcd_info:\n");                                       \
+    if (adj_fail == 1)                                            \
+        printf("lpcd_sen_adj: fail\n");                           \
+    else                                                          \
+        printf("lpcd_sen_adj: succeed\n");                        \
+    printf("lpcd_cfg.t1: %x\n", lpcd_cfg.t1);                     \
+    printf("lpcd_cfg.phase: %x\n", lpcd_cfg.phase);               \
+    printf("lpcd_cfg.amp: %x\n", lpcd_cfg.amp);                   \
+    printf("lpcd_cfg.sense: %x\n", lpcd_cfg.sense);               \
+    for (i = 0; i < 8; i++)                                       \
+    {                                                             \
+        printf("lpcd_cfg.idx[%d]: %x\n", i, lpcd_cfg.idx[i]);     \
+    }
 #else
 #define LPCD_AMP_TEST_INFO(str, amp_info, rlt_info)
+#define LPCD_ADJ_INFO
 #endif
 
 #endif

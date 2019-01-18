@@ -20,6 +20,8 @@
  *@    rpliu        20190117   V3.0.2       replace set_bit_mask and clear_bit_mask
                                             with macro define
  *@    rpliu        20190117   V3.0.3       add timeout for sense adj loop
+ *@    rpliu        20190117   V3.0.4       fix a bug in adj_fail assignment
+                                            add debug info
 
 *************************************************************
 */
@@ -652,6 +654,10 @@ int lpcd_sen_adj()
             amp_srch_rlt2 = lpcd_amp_search_ceil(lpcd_amp_thd, lpcd_cfg.default_amp, lpcd_cfg.max_amp);
             adj_fail = (amp_srch_rlt2 == 0);
         }
+        else
+        {
+            adj_fail = 1;
+        }
 
         lpcd_cfg.amp = (amp_srch_rlt1 + amp_srch_rlt2) / 2;
 
@@ -706,15 +712,7 @@ int lpcd_sen_adj()
         SL_WR_REG(0x3f,0x00);
     }
 
-//  printf("lpcd_info:\n");
-//  printf("lpcd_cfg.t1: %x\n", lpcd_cfg.t1);
-//  printf("lpcd_cfg.phase: %x\n", lpcd_cfg.phase);
-//  printf("lpcd_cfg.amp: %x\n", lpcd_cfg.amp);
-//  printf("lpcd_cfg.sense: %x\n", lpcd_cfg.sense);
-//  for (i = 0; i < 8; i++)
-//  {
-//      printf("lpcd_cfg.idx[%d]: %x\n", i, lpcd_cfg.idx[i]);
-//  }
+    LPCD_ADJ_INFO
 
     return ((adj_fail == 1) ? -1 : 0);
 }
