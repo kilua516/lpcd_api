@@ -31,7 +31,6 @@
 
 #include <stdio.h>
 #include "lpcd.h"
-#include "../iso14443/sl2523.h"
 
 double voltage[] ={1.69    , // 0
                    1.73    , // 1
@@ -148,10 +147,10 @@ unsigned char lpcd_amp_test(unsigned char amp)
     reg_15 = SL_RD_REG(0x15);
     reg_28 = SL_RD_REG(0x28);
     reg_29 = SL_RD_REG(0x29);
-    SL_WR_REG(TxASKReg, 0x00);  // Force100ASK = 0
-    SL_WR_REG(TxControlReg, 0x80);
-    SL_WR_REG(CWGsPReg, amp ^ 0x28);
-    SL_WR_REG(ModGsPReg, amp ^ 0x28);
+    SL_WR_REG(0x14, 0x80);
+    SL_WR_REG(0x15, 0x00);  // Force100ASK = 0
+    SL_WR_REG(0x28, amp ^ 0x28);
+    SL_WR_REG(0x29, amp ^ 0x28);
 
     SL_WR_REG(0x3f,0x01);
 
@@ -205,10 +204,10 @@ unsigned char lpcd_amp_test(unsigned char amp)
     SL_WR_REG(0x54,0x92);
 
     SL_WR_REG(0x3f,0x00);
-    SL_WR_REG(TxASKReg, reg_15);
-    SL_WR_REG(TxControlReg, reg_14 | 0x03);
-    SL_WR_REG(ModGsPReg, reg_29);
-    SL_WR_REG(CWGsPReg, reg_28);
+    SL_WR_REG(0x15, reg_15);
+    SL_WR_REG(0x14, reg_14 | 0x03);
+    SL_WR_REG(0x29, reg_29);
+    SL_WR_REG(0x28, reg_28);
 
     found_1 = 0;
     calib_rlt_filt = calib_rlt;
@@ -252,13 +251,13 @@ unsigned char phase_calib()
 
     SL_WR_REG(0x3f,0x00);
 
-    reg_14 = SL_RD_REG(TxControlReg);
-    reg_15 = SL_RD_REG(TxASKReg);
-    reg_29 = SL_RD_REG(ModGsPReg);
+    reg_14 = SL_RD_REG(0x14);
+    reg_15 = SL_RD_REG(0x15);
+    reg_29 = SL_RD_REG(0x29);
 
-    SL_WR_REG(TxASKReg, 0x00);  // Force100ASK = 0
-    SL_WR_REG(TxControlReg, 0x80);
-    SL_WR_REG(ModGsPReg, SL_RD_REG(CWGsPReg));
+    SL_WR_REG(0x15, 0x00);  // Force100ASK = 0
+    SL_WR_REG(0x14, 0x80);
+    SL_WR_REG(0x29, SL_RD_REG(0x28));
 
     SL_WR_REG(0x3f,0x01);
 
@@ -341,9 +340,9 @@ unsigned char phase_calib()
     SL_WR_REG(0x66,reg_66);
 
     SL_WR_REG(0x3f,0x00);
-    SL_WR_REG(TxASKReg, reg_15);
-    SL_WR_REG(TxControlReg, reg_14 | 0x03);
-    SL_WR_REG(ModGsPReg, reg_29);
+    SL_WR_REG(0x15, reg_15);
+    SL_WR_REG(0x14, reg_14 | 0x03);
+    SL_WR_REG(0x29, reg_29);
 
     if (amp[0] < amp[1])
         ph = (reg_66 ^ 0xc0);
@@ -437,17 +436,17 @@ void lpcd_entry()
     slm_reg_15 = SL_RD_REG(0x15);
     slm_reg_28 = SL_RD_REG(0x28);
     slm_reg_29 = SL_RD_REG(0x29);
-    SL_WR_REG(TxASKReg, 0x00);  // Force100ASK = 0
-    SL_WR_REG(TxControlReg, 0x80);
-    SL_WR_REG(CWGsPReg, lpcd_cfg.amp ^ 0x28);
-    SL_WR_REG(ModGsPReg, lpcd_cfg.amp ^ 0x28);
+    SL_WR_REG(0x15, 0x00);  // Force100ASK = 0
+    SL_WR_REG(0x14, 0x80);
+    SL_WR_REG(0x28, lpcd_cfg.amp ^ 0x28);
+    SL_WR_REG(0x29, lpcd_cfg.amp ^ 0x28);
     SL_WR_REG(0x3f, 0x01);
     slm_reg_65 = SL_RD_REG(0x65);
     slm_reg_66 = SL_RD_REG(0x66);
     SL_WR_REG(0x65, 0x00);
     SL_WR_REG(0x66, lpcd_cfg.phase);
     SL_WR_REG(0x3f, 0x00);
-    SL_SET_BIT_MASK(DivIEnReg, BIT7 | BIT5);// enable LPCD IRQ
+    SL_SET_BIT_MASK(0x03, BIT7 | BIT5);// enable LPCD IRQ
 
     SL_WR_REG(0x01,0x10);
     
@@ -472,15 +471,15 @@ void lpcd_exit()
     while (SL_RD_REG(0x3f) == 0x00);
     SL_WR_REG(0x3f,0x00);
     
-    SL_WR_REG(TxASKReg, slm_reg_15);
-    SL_WR_REG(TxControlReg, slm_reg_14 | 0x03);
-    SL_WR_REG(CWGsPReg, slm_reg_28);
-    SL_WR_REG(ModGsPReg, slm_reg_29);
+    SL_WR_REG(0x15, slm_reg_15);
+    SL_WR_REG(0x14, slm_reg_14 | 0x03);
+    SL_WR_REG(0x28, slm_reg_28);
+    SL_WR_REG(0x29, slm_reg_29);
     SL_WR_REG(0x3f, 0x01);
     SL_WR_REG(0x65, slm_reg_65);
     SL_WR_REG(0x66, slm_reg_66);
     SL_WR_REG(0x3f, 0x00);
-    SL_CLR_BIT_MASK(DivIEnReg, BIT5);
+    SL_CLR_BIT_MASK(0x03, BIT5);
 }
 
 int lpcd_sen_adj()
