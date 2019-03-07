@@ -228,7 +228,8 @@ char pcd_config(u8 type)
         write_reg(ModeReg, 0x3F);   // CRC seed:FFFF
         write_reg(GsNReg, 0xF8);    //调制系数
         //write_reg(ModGsPReg, 0x0e); //调制指数
-        write_reg(ModGsPReg, 0x24); //调制指数
+        write_reg(CWGsPReg, 0x17);
+        write_reg(ModGsPReg, 0x29); //调制指数
         write_reg(AutoTestReg, 0x00);
         write_reg(TxASKReg, 0x00);  // typeB
         set_bit_mask(TypeBReg, 0xc3);   // 0x13
