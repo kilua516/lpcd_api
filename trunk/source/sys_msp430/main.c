@@ -72,6 +72,7 @@ void main( void )
     uchar card_detect = 0;
     uchar false_det_cnt;
     uchar lpcd_amp_rlt;
+    int lpcd_sen_adj_rlt;
     int i = 0;
     unsigned long wait_cnt;
 
@@ -137,8 +138,8 @@ void main( void )
     while(1)
     {
 //      test_a(1);
-//      test_b(1);
-        test_auth();
+        test_b(1);
+//      test_auth();
     }
 #endif
     
@@ -227,7 +228,19 @@ void main( void )
             {
                 printf("********** LPCD AUTO ADJUST *******\n");
                 false_det_cnt = 0;
-                lpcd_sen_adj();
+                lpcd_sen_adj_rlt = lpcd_sen_adj();
+                if (lpcd_sen_adj_rlt == -1)
+                {
+                    printf("******** AUTO ADJUST TIMEOUT ******\n");
+                }
+                else if (lpcd_sen_adj_rlt == -2)
+                {
+                    printf("***** FIELD STRENGTH TOO LARGE ****\n");
+                }
+                else
+                {
+                    printf("field strength: %f\n", voltage[lpcd_sen_adj_rlt]);
+                }
             }
         }
         else

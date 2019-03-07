@@ -493,6 +493,7 @@ int lpcd_sen_adj()
     unsigned char adj_fail;
     unsigned long adj_to_cnt;
     unsigned char i;
+    unsigned char field_str_idx;
 
     // backup original lpcd_cfg
     lpcd_cfg_bk = lpcd_cfg;
@@ -599,6 +600,7 @@ int lpcd_sen_adj()
         }
         else if (lpcd_amp_rlt == 0xf0)
         {
+            field_str_idx = lpcd_cfg.idx[3];
             break;
         }
         else if (lpcd_amp_rlt == 0xe0)
@@ -648,6 +650,11 @@ int lpcd_sen_adj()
         for (i = 0; i < 8; i++)
         {
             lpcd_cfg.idx[i] += lpcd_idx_adj_val;
+        }
+
+        if (lpcd_cfg.idx[7] == (INDEX_NUM - 1))
+        {
+            return -2;
         }
     }
 
@@ -724,7 +731,7 @@ int lpcd_sen_adj()
 
     LPCD_ADJ_INFO
 
-    return ((adj_fail == 1) ? -1 : 0);
+    return ((adj_fail == 1) ? -1 : field_str_idx);
 }
 
 unsigned char lpcd_amp_search_floor(unsigned char lpcd_amp_target, unsigned char amp_low, unsigned char amp_high)
