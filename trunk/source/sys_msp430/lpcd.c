@@ -25,6 +25,8 @@
  *@    rpliu        20190118   V3.0.5       add a threshold in threshold lut
                                             change the method of expand threshold at the beginning of sense adjust flow
                                             fix a bug for not write to threshold register when succeed
+ *@    rpliu        20190311   V3.0.6       adjust threshold calulation
+                                            add field strength notification in return value
 
 *************************************************************
 */
