@@ -143,6 +143,7 @@ unsigned char lpcd_amp_test(unsigned char amp)
     unsigned char recv_data;
     unsigned char i;
 
+    SL_WR_REG(0x3f,0x00);
     reg_14 = SL_RD_REG(0x14);
     reg_15 = SL_RD_REG(0x15);
     reg_28 = SL_RD_REG(0x28);
@@ -652,7 +653,12 @@ int lpcd_sen_adj()
             lpcd_cfg.idx[i] += lpcd_idx_adj_val;
         }
 
-        if (lpcd_cfg.idx[7] == (INDEX_NUM - 1))
+        if (lpcd_cfg.idx[0] == 0)
+        {
+            return -3;
+        }
+
+        if (lpcd_cfg.idx[7] == (INDEX_NUM - 2))
         {
             return -2;
         }
@@ -681,33 +687,37 @@ int lpcd_sen_adj()
                 lpcd_cfg.idx[1] = lpcd_cfg.idx[0];
                 lpcd_cfg.idx[2] = lpcd_cfg.idx[0];
                 lpcd_cfg.idx[3] = lpcd_cfg.idx[0];
-                lpcd_cfg.idx[4] = lpcd_cfg.idx[7];
-                lpcd_cfg.idx[5] = lpcd_cfg.idx[7];
-                lpcd_cfg.idx[6] = lpcd_cfg.idx[7];
+                lpcd_cfg.idx[4] = lpcd_cfg.idx[7]+1;
+                lpcd_cfg.idx[5] = lpcd_cfg.idx[7]+1;
+                lpcd_cfg.idx[6] = lpcd_cfg.idx[7]+1;
+                lpcd_cfg.idx[7] = lpcd_cfg.idx[7]+1;
                 break;
             case 1:
                 lpcd_cfg.idx[0] = lpcd_cfg.idx[1];
                 lpcd_cfg.idx[2] = lpcd_cfg.idx[1];
                 lpcd_cfg.idx[3] = lpcd_cfg.idx[1];
-                lpcd_cfg.idx[4] = lpcd_cfg.idx[6];
-                lpcd_cfg.idx[5] = lpcd_cfg.idx[6];
-                lpcd_cfg.idx[7] = lpcd_cfg.idx[6];
+                lpcd_cfg.idx[4] = lpcd_cfg.idx[6]+1;
+                lpcd_cfg.idx[5] = lpcd_cfg.idx[6]+1;
+                lpcd_cfg.idx[7] = lpcd_cfg.idx[6]+1;
+                lpcd_cfg.idx[6] = lpcd_cfg.idx[6]+1;
                 break;
             case 2:
                 lpcd_cfg.idx[0] = lpcd_cfg.idx[2];
                 lpcd_cfg.idx[1] = lpcd_cfg.idx[2];
                 lpcd_cfg.idx[3] = lpcd_cfg.idx[2];
-                lpcd_cfg.idx[4] = lpcd_cfg.idx[5];
-                lpcd_cfg.idx[6] = lpcd_cfg.idx[5];
-                lpcd_cfg.idx[7] = lpcd_cfg.idx[5];
+                lpcd_cfg.idx[4] = lpcd_cfg.idx[5]+1;
+                lpcd_cfg.idx[6] = lpcd_cfg.idx[5]+1;
+                lpcd_cfg.idx[7] = lpcd_cfg.idx[5]+1;
+                lpcd_cfg.idx[5] = lpcd_cfg.idx[5]+1;
                 break;
             default:
                 lpcd_cfg.idx[0] = lpcd_cfg.idx[3];
                 lpcd_cfg.idx[1] = lpcd_cfg.idx[3];
                 lpcd_cfg.idx[2] = lpcd_cfg.idx[3];
-                lpcd_cfg.idx[5] = lpcd_cfg.idx[4];
-                lpcd_cfg.idx[6] = lpcd_cfg.idx[4];
-                lpcd_cfg.idx[7] = lpcd_cfg.idx[4];
+                lpcd_cfg.idx[5] = lpcd_cfg.idx[4]+1;
+                lpcd_cfg.idx[6] = lpcd_cfg.idx[4]+1;
+                lpcd_cfg.idx[7] = lpcd_cfg.idx[4]+1;
+                lpcd_cfg.idx[4] = lpcd_cfg.idx[4]+1;
                 break;
         }
     }

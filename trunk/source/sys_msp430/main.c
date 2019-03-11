@@ -237,6 +237,10 @@ void main( void )
                 {
                     printf("***** FIELD STRENGTH TOO LARGE ****\n");
                 }
+                else if (lpcd_sen_adj_rlt == -3)
+                {
+                    printf("***** FIELD STRENGTH TOO SMALL ****\n");
+                }
                 else
                 {
                     printf("field strength: %f\n", voltage[lpcd_sen_adj_rlt]);
